@@ -1,0 +1,75 @@
+// ============================================================================
+// BREADCRUMBS COMPONENT
+// ============================================================================
+
+.breadcrumb-bar {
+  background-color: $gray-50;
+  border-bottom: 1px solid $gray-100;
+  padding: $spacing-3 0;
+
+  [data-theme="dark"] & {
+    background-color: rgba($black, 0.2);
+    border-color: rgba($white, 0.05);
+  }
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+
+  &__list {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+    align-items: center;
+    gap: 0;
+  }
+
+  &__item {
+    display: flex;
+    align-items: center;
+    font-size: $font-size-sm;
+    color: $text-muted;
+    margin-bottom: 0;
+
+    &--current {
+      color: $black;
+      font-weight: $font-weight-semibold;
+
+      [data-theme="dark"] & {
+        color: $white;
+      }
+    }
+  }
+
+  &__link {
+    color: inherit;
+    transition: all $transition-fast;
+    text-decoration: none;
+
+    &:hover {
+      color: $primary;
+    }
+  }
+
+  &__sep {
+    display: inline-block;
+    padding: 0 $spacing-3;
+    color: $gray-300;
+    user-select: none;
+    font-size: 1.1em;
+    line-height: 1;
+
+    [data-theme="dark"] & {
+      color: rgba($white, 0.2);
+    }
+  }
+
+  &__current {
+    max-width: 300px;
+    @include truncate;
+    display: inline-block;
+  }
+}

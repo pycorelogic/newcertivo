@@ -1,0 +1,164 @@
+{% extends 'admin/base.html' %}
+
+{% block admin_title %}Dashboard{% endblock %}
+
+{% block admin_content %}
+<div class="admin-page-header">
+    <div class="admin-page-header__left">
+        <h1 class="admin-page-header__title">
+            <span class="admin-page-header__title-icon">📊</span>
+            Dashboard Overview
+        </h1>
+        <p class="admin-page-header__subtitle">
+            Welcome back, <strong>{{ current_user.username }}</strong>. Here's what's happening on your blog.
+        </p>
+    </div>
+    <div class="admin-page-header__actions">
+        <a href="{{ url_for('main.index') }}" class="btn btn--ghost btn--sm" target="_blank" rel="noopener">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            Live Site
+        </a>
+    </div>
+</div>
+
+{# ── STATS CARDS ──────────────────────────────────────────────────────────── #}
+<div class="admin-stats-grid">
+    <div class="admin-stat-card">
+        <div class="admin-stat-card__icon admin-stat-card__icon--blue">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        </div>
+        <div class="admin-stat-card__body">
+            <span class="admin-stat-card__label">Total Posts</span>
+            <span class="admin-stat-card__value">{{ stats.total_posts | format_number }}</span>
+        </div>
+        <a href="{{ url_for('admin.posts') }}" class="admin-stat-card__link" aria-label="View all posts"></a>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-card__icon admin-stat-card__icon--green">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </div>
+        <div class="admin-stat-card__body">
+            <span class="admin-stat-card__label">Total Views</span>
+            <span class="admin-stat-card__value">{{ stats.total_views | format_number }}</span>
+        </div>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-card__icon admin-stat-card__icon--orange">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        </div>
+        <div class="admin-stat-card__body">
+            <span class="admin-stat-card__label">Pending Comments</span>
+            <span class="admin-stat-card__value">{{ stats.pending_comments | format_number }}</span>
+        </div>
+        <a href="{{ url_for('admin.comments') }}" class="admin-stat-card__link" aria-label="View pending comments"></a>
+    </div>
+
+    <div class="admin-stat-card">
+        <div class="admin-stat-card__icon admin-stat-card__icon--purple">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div class="admin-stat-card__body">
+            <span class="admin-stat-card__label">Unread Messages</span>
+            <span class="admin-stat-card__value">{{ stats.unread_messages | format_number }}</span>
+        </div>
+        <a href="{{ url_for('admin.messages') }}" class="admin-stat-card__link" aria-label="View unread messages"></a>
+    </div>
+</div>
+
+{# ── PENDING ALERTS ───────────────────────────────────────────────────────── #}
+{% if stats.pending_comments > 0 %}
+<div class="admin-alert-banner admin-alert-banner--warning">
+    <div class="admin-alert-banner__icon">⚠️</div>
+    <div class="admin-alert-banner__body">
+        <strong>{{ stats.pending_comments }} comment{{ 's' if stats.pending_comments != 1 else '' }} awaiting moderation.</strong>
+        Review and approve or reject them to keep your blog active.
+    </div>
+    <a href="{{ url_for('admin.comments') }}" class="btn btn--warning btn--sm admin-alert-banner__action">Review Comments →</a>
+</div>
+{% endif %}
+
+{% if stats.unread_messages > 0 %}
+<div class="admin-alert-banner admin-alert-banner--info">
+    <div class="admin-alert-banner__icon">📬</div>
+    <div class="admin-alert-banner__body">
+        <strong>{{ stats.unread_messages }} unread contact message{{ 's' if stats.unread_messages != 1 else '' }}.</strong>
+        Someone reached out — don't leave them waiting!
+    </div>
+    <a href="{{ url_for('admin.messages') }}" class="btn btn--info btn--sm admin-alert-banner__action">Read Messages →</a>
+</div>
+{% endif %}
+
+<div class="admin-dashboard-grid">
+    <div class="admin-dashboard-col admin-dashboard-col--main">
+        {# Recent Posts #}
+        <div class="admin-panel">
+            <div class="admin-panel__header">
+                <h2 class="admin-panel__title">Recent Posts</h2>
+                <div class="admin-panel__actions">
+                    <a href="{{ url_for('admin.post_create') }}" class="btn btn--primary btn--sm">+ New Post</a>
+                    <a href="{{ url_for('admin.posts') }}" class="btn btn--ghost btn--sm">View All</a>
+                </div>
+            </div>
+            <div class="admin-panel__body">
+                {% if recent_posts %}
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Category</th>
+                                <th>Views</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for post in recent_posts %}
+                            <tr>
+                                <td>{{ post.title | truncate(50, True, '…') }}</td>
+                                <td>{{ post.category.name if post.category else '—' }}</td>
+                                <td>{{ post.views | format_number }}</td>
+                                <td>{{ post.short_date }}</td>
+                                <td>
+                                    <a href="{{ url_for('admin.post_edit', post_id=post.id) }}" class="btn btn--sm btn--ghost">Edit</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p>No posts yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-dashboard-col admin-dashboard-col--side">
+        {# Quick Actions #}
+        <div class="admin-panel">
+            <div class="admin-panel__header">
+                <h2 class="admin-panel__title">Quick Actions</h2>
+            </div>
+            <div class="admin-panel__body">
+                <div class="admin-quick-actions">
+                    <a href="{{ url_for('admin.post_create') }}" class="admin-quick-action">
+                        <span class="admin-quick-action__icon">✏️</span>
+                        <span class="admin-quick-action__label">New Post</span>
+                    </a>
+                    <a href="{{ url_for('admin.categories') }}" class="admin-quick-action">
+                        <span class="admin-quick-action__icon">🗂️</span>
+                        <span class="admin-quick-action__label">Categories</span>
+                    </a>
+                    <a href="{{ url_for('admin.affiliates') }}" class="admin-quick-action">
+                        <span class="admin-quick-action__icon">🔗</span>
+                        <span class="admin-quick-action__label">Affiliates</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

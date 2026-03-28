@@ -1,0 +1,523 @@
+{% extends 'admin/base.html' %}
+
+{% block admin_title %}Media Library{% endblock %}
+
+{% block admin_breadcrumb %}
+<li class="admin-topbar__breadcrumb-sep" aria-hidden="true">›</li>
+<li class="admin-topbar__breadcrumb-item admin-topbar__breadcrumb-item--current" aria-current="page">
+  Media
+</li>
+{% endblock %}
+
+{% block admin_content %}
+<div class="admin-page-header">
+  <div class="admin-page-header__left">
+    <h1 class="admin-page-header__title">
+      <span class="admin-page-header__title-icon">🖼️</span>
+      Media Library
+    </h1>
+    <p class="admin-page-header__subtitle">
+      Upload and manage images used across your blog posts and pages.
+    </p>
+  </div>
+  <div class="admin-page-header__actions">
+    <button class="btn btn--primary" id="upload-media-btn"
+            aria-haspopup="dialog" aria-controls="upload-media-modal">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/>
+        <line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      Upload Image
+    </button>
+  </div>
+</div>
+
+{# ── UPLOAD STATS ─────────────────────────────────────────────────────────── #}
+{% if images %}
+<div class="admin-media-stats">
+  <div class="admin-media-stat">
+    <span class="admin-media-stat__value">{{ images | length }}</span>
+    <span class="admin-media-stat__label">Total Files</span>
+  </div>
+  <div class="admin-media-stat">
+    <span class="admin-media-stat__value">
+      {{ (images | sum(attribute='size') / 1024 / 1024) | round(1) }} MB
+    </span>
+    <span class="admin-media-stat__label">Total Size</span>
+  </div>
+</div>
+{% endif %}
+
+{# ── SEARCH / FILTER BAR ──────────────────────────────────────────────────── #}
+{% if images %}
+<div class="admin-media-toolbar">
+  <div class="admin-media-toolbar__search">
+    <label for="media-search" class="sr-only">Search images</label>
+    <input
+      type="search"
+      id="media-search"
+      class="admin-filter-input"
+      placeholder="Filter by filename…"
+      aria-label="Filter images by filename"
+    />
+  </div>
+  <div class="admin-media-toolbar__view-toggle" role="group" aria-label="View layout">
+    <button class="admin-media-view-btn admin-media-view-btn--active" id="media-grid-btn"
+            aria-pressed="true" title="Grid view">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <rect x="3" y="3" width="7" height="7" rx="1"/>
+        <rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/>
+        <rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+    </button>
+    <button class="admin-media-view-btn" id="media-list-btn"
+            aria-pressed="false" title="List view">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="8" y1="6" x2="21" y2="6"/>
+        <line x1="8" y1="12" x2="21" y2="12"/>
+        <line x1="8" y1="18" x2="21" y2="18"/>
+        <line x1="3" y1="6" x2="3.01" y2="6"/>
+        <line x1="3" y1="12" x2="3.01" y2="12"/>
+        <line x1="3" y1="18" x2="3.01" y2="18"/>
+      </svg>
+    </button>
+  </div>
+</div>
+{% endif %}
+
+{# ── MEDIA GRID ───────────────────────────────────────────────────────────── #}
+{% if images %}
+<div class="admin-media-grid" id="media-grid" role="list" aria-label="Uploaded images">
+  {% for img in images %}
+  <div class="admin-media-item" role="listitem" data-filename="{{ img.filename | lower }}">
+
+    {# Image preview #}
+    <div class="admin-media-item__preview">
+      <img
+        src="{{ img.url }}"
+        alt="{{ img.filename }}"
+        class="admin-media-item__img"
+        loading="lazy"
+        width="200"
+        height="150"
+        onerror="this.parentElement.innerHTML='<div class=\'admin-media-item__error\'>⚠️</div>'"
+      />
+      <div class="admin-media-item__overlay">
+        <div class="admin-media-item__overlay-actions">
+          <button
+            class="admin-media-item__overlay-btn admin-media-item__overlay-btn--copy"
+            data-url="{{ img.url }}"
+            title="Copy image URL"
+            aria-label="Copy URL for {{ img.filename }}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            Copy URL
+          </button>
+          <a
+            href="{{ img.url }}"
+            target="_blank"
+            rel="noopener"
+            class="admin-media-item__overlay-btn admin-media-item__overlay-btn--view"
+            title="View full size"
+            aria-label="View {{ img.filename }} full size">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            View
+          </a>
+        </div>
+      </div>
+    </div>
+
+    {# File info #}
+    <div class="admin-media-item__info">
+      <span class="admin-media-item__name" title="{{ img.filename }}">
+        {{ img.filename | truncate(22, True, '…') }}
+      </span>
+      <span class="admin-media-item__size">{{ img.size | filesize }}</span>
+    </div>
+
+    {# Delete action #}
+    <div class="admin-media-item__actions">
+      <button
+        class="admin-media-item__copy-btn"
+        data-url="{{ img.url }}"
+        title="Copy URL to clipboard"
+        aria-label="Copy URL">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+        </svg>
+        Copy URL
+      </button>
+
+      <form
+        action="{{ url_for('admin.media_delete') }}"
+        method="post"
+        class="admin-media-item__delete-form"
+        onsubmit="return confirm('Permanently delete {{ img.filename }}?\n\nThis cannot be undone. Make sure this image is not used in any post.')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <input type="hidden" name="filename" value="{{ img.filename }}" />
+        <button
+          type="submit"
+          class="admin-media-item__delete-btn"
+          title="Delete {{ img.filename }}"
+          aria-label="Delete {{ img.filename }}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+        </button>
+      </form>
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+
+{# ── EMPTY STATE ──────────────────────────────────────────────────────────── #}
+<div class="admin-empty-state admin-empty-state--large">
+  <div class="admin-empty-state__icon-wrap">
+    <span class="admin-empty-state__icon">🖼️</span>
+  </div>
+  <h3 class="admin-empty-state__title">No images uploaded yet</h3>
+  <p class="admin-empty-state__text">
+    Upload images to use as featured images in your blog posts,
+    or embed them directly in the post editor.
+  </p>
+  <button class="btn btn--primary" id="upload-media-btn-empty">
+    Upload Your First Image
+  </button>
+</div>
+
+{% endif %}
+
+{# ══════════════════════════════════════════════════════════════════════════ #}
+{# UPLOAD MODAL                                                              #}
+{# ══════════════════════════════════════════════════════════════════════════ #}
+<div class="admin-modal" id="upload-media-modal" role="dialog" aria-modal="true"
+     aria-labelledby="upload-modal-title" aria-hidden="true" hidden>
+  <div class="admin-modal__backdrop" id="upload-modal-backdrop"></div>
+  <div class="admin-modal__box">
+    <div class="admin-modal__header">
+      <h2 class="admin-modal__title" id="upload-modal-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Upload Image
+      </h2>
+      <button class="admin-modal__close" id="upload-modal-close" aria-label="Close modal">
+        &times;
+      </button>
+    </div>
+
+    <form
+      action="{{ url_for('admin.media_upload') }}"
+      method="post"
+      enctype="multipart/form-data"
+      class="admin-modal__form"
+      id="upload-form"
+      novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <div class="admin-modal__body">
+
+        {# Drop zone #}
+        <div class="admin-upload-dropzone" id="upload-dropzone"
+             role="button" tabindex="0"
+             aria-label="Drop images here or click to browse">
+          <div class="admin-upload-dropzone__inner" id="dropzone-inner">
+            <div class="admin-upload-dropzone__icon" aria-hidden="true">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <div class="admin-upload-dropzone__text">
+              <span class="admin-upload-dropzone__primary">
+                Drop image here or <span class="admin-upload-dropzone__browse">browse</span>
+              </span>
+              <span class="admin-upload-dropzone__secondary">
+                PNG, JPG, WebP, GIF, SVG — max 16 MB per file
+              </span>
+            </div>
+          </div>
+
+          {# Preview (shown after file selected) #}
+          <div class="admin-upload-dropzone__preview" id="upload-preview" style="display:none">
+            <img id="upload-preview-img" src="" alt="Upload preview" />
+            <div class="admin-upload-dropzone__preview-info">
+              <span id="upload-preview-name"></span>
+              <span id="upload-preview-size"></span>
+            </div>
+            <button type="button" class="admin-upload-dropzone__preview-clear"
+                    id="upload-preview-clear" aria-label="Remove selected file">
+              &times;
+            </button>
+          </div>
+        </div>
+
+        <input
+          type="file"
+          id="upload-file-input"
+          name="file"
+          class="sr-only"
+          accept=".png,.jpg,.jpeg,.gif,.webp,.svg"
+          required
+          aria-required="true"
+        />
+
+        <div class="admin-upload-tips">
+          <h4 class="admin-upload-tips__title">Tips for best results:</h4>
+          <ul class="admin-upload-tips__list">
+            <li>Use <strong>WebP</strong> format for best compression and quality.</li>
+            <li>Featured images: <strong>1200×630 px</strong> (16:9 ratio) recommended.</li>
+            <li>Keep file sizes under <strong>500 KB</strong> for fast page loads.</li>
+            <li>Use descriptive filenames (e.g. <code>ai-future-2024.webp</code>).</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="admin-modal__footer">
+        <button type="button" class="btn btn--ghost" id="upload-modal-cancel">Cancel</button>
+        <button type="submit" class="btn btn--primary" id="upload-submit-btn" disabled>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+          Upload Image
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# ── COPY URL TOAST ───────────────────────────────────────────────────────── #}
+<div class="admin-toast" id="copy-toast" role="status" aria-live="polite" aria-hidden="true">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+  URL copied to clipboard!
+</div>
+
+{% endblock %}
+
+{% block admin_extra_scripts %}
+<script>
+(function () {
+  'use strict';
+
+  // ── Modal helpers ────────────────────────────────────────────────────────
+  const uploadModal   = document.getElementById('upload-media-modal');
+  const uploadBackdrop= document.getElementById('upload-modal-backdrop');
+  const uploadClose   = document.getElementById('upload-modal-close');
+  const uploadCancel  = document.getElementById('upload-modal-cancel');
+
+  function openUploadModal() {
+    uploadModal.hidden = false;
+    uploadModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeUploadModal() {
+    uploadModal.hidden = true;
+    uploadModal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  ['upload-media-btn', 'upload-media-btn-empty'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.addEventListener('click', openUploadModal);
+  });
+  if (uploadClose)    uploadClose.addEventListener('click', closeUploadModal);
+  if (uploadCancel)   uploadCancel.addEventListener('click', closeUploadModal);
+  if (uploadBackdrop) uploadBackdrop.addEventListener('click', closeUploadModal);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && !uploadModal.hidden) closeUploadModal();
+  });
+
+  // ── File input / drop zone ───────────────────────────────────────────────
+  const dropzone     = document.getElementById('upload-dropzone');
+  const fileInput    = document.getElementById('upload-file-input');
+  const previewWrap  = document.getElementById('upload-preview');
+  const previewImg   = document.getElementById('upload-preview-img');
+  const previewName  = document.getElementById('upload-preview-name');
+  const previewSize  = document.getElementById('upload-preview-size');
+  const previewClear = document.getElementById('upload-preview-clear');
+  const dropzoneInner= document.getElementById('dropzone-inner');
+  const submitBtn    = document.getElementById('upload-submit-btn');
+
+  function formatSize(bytes) {
+    if (bytes < 1024)       return bytes + ' B';
+    if (bytes < 1024*1024)  return (bytes/1024).toFixed(1) + ' KB';
+    return (bytes/1024/1024).toFixed(1) + ' MB';
+  }
+
+  function showPreview(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      previewImg.src = e.target.result;
+      previewName.textContent = file.name;
+      previewSize.textContent = formatSize(file.size);
+      dropzoneInner.style.display = 'none';
+      previewWrap.style.display   = 'flex';
+      submitBtn.disabled = false;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearPreview() {
+    fileInput.value = '';
+    previewImg.src  = '';
+    previewName.textContent = '';
+    previewSize.textContent = '';
+    previewWrap.style.display   = 'none';
+    dropzoneInner.style.display = '';
+    submitBtn.disabled = true;
+  }
+
+  if (dropzone) {
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); }
+    });
+
+    dropzone.addEventListener('dragover', e => {
+      e.preventDefault();
+      dropzone.classList.add('admin-upload-dropzone--dragover');
+    });
+    ['dragleave','dragend'].forEach(ev => {
+      dropzone.addEventListener(ev, () => {
+        dropzone.classList.remove('admin-upload-dropzone--dragover');
+      });
+    });
+    dropzone.addEventListener('drop', e => {
+      e.preventDefault();
+      dropzone.classList.remove('admin-upload-dropzone--dragover');
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        // Set file on input (requires DataTransfer)
+        try {
+          const dt = new DataTransfer();
+          dt.items.add(files[0]);
+          fileInput.files = dt.files;
+        } catch(_) {}
+        showPreview(files[0]);
+      }
+    });
+  }
+
+  if (fileInput) {
+    fileInput.addEventListener('change', function () {
+      if (this.files.length > 0) showPreview(this.files[0]);
+    });
+  }
+
+  if (previewClear) {
+    previewClear.addEventListener('click', e => {
+      e.stopPropagation();
+      clearPreview();
+    });
+  }
+
+  // ── Copy URL buttons ─────────────────────────────────────────────────────
+  const toast = document.getElementById('copy-toast');
+  let toastTimer;
+
+  function showToast() {
+    if (!toast) return;
+    toast.setAttribute('aria-hidden', 'false');
+    toast.classList.add('admin-toast--visible');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.remove('admin-toast--visible');
+      toast.setAttribute('aria-hidden', 'true');
+    }, 2500);
+  }
+
+  function copyToClipboard(url) {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(url).then(showToast).catch(() => fallbackCopy(url));
+    } else {
+      fallbackCopy(url);
+    }
+  }
+
+  function fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity  = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand('copy'); showToast(); } catch(_) {}
+    document.body.removeChild(ta);
+  }
+
+  document.querySelectorAll('[data-url]').forEach(btn => {
+    btn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      copyToClipboard(this.dataset.url);
+    });
+  });
+
+  // ── Media search filter ───────────────────────────────────────────────────
+  const searchInput = document.getElementById('media-search');
+  const mediaGrid   = document.getElementById('media-grid');
+
+  if (searchInput && mediaGrid) {
+    searchInput.addEventListener('input', function () {
+      const query = this.value.toLowerCase().trim();
+      mediaGrid.querySelectorAll('.admin-media-item').forEach(item => {
+        const name = item.dataset.filename || '';
+        item.style.display = name.includes(query) ? '' : 'none';
+      });
+    });
+  }
+
+  // ── View toggle: grid ↔ list ──────────────────────────────────────────────
+  const gridBtn = document.getElementById('media-grid-btn');
+  const listBtn = document.getElementById('media-list-btn');
+
+  if (gridBtn && listBtn && mediaGrid) {
+    gridBtn.addEventListener('click', () => {
+      mediaGrid.classList.remove('admin-media-grid--list');
+      gridBtn.classList.add('admin-media-view-btn--active');
+      gridBtn.setAttribute('aria-pressed', 'true');
+      listBtn.classList.remove('admin-media-view-btn--active');
+      listBtn.setAttribute('aria-pressed', 'false');
+    });
+    listBtn.addEventListener('click', () => {
+      mediaGrid.classList.add('admin-media-grid--list');
+      listBtn.classList.add('admin-media-view-btn--active');
+      listBtn.setAttribute('aria-pressed', 'true');
+      gridBtn.classList.remove('admin-media-view-btn--active');
+      gridBtn.setAttribute('aria-pressed', 'false');
+    });
+  }
+}());
+</script>
+{% endblock %}

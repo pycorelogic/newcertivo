@@ -1,0 +1,140 @@
+// ============================================================================
+// BLOG & CATEGORIES PAGE
+// ============================================================================
+
+.categories-container {
+  padding: $spacing-12 0;
+}
+
+.categories-header {
+  text-align: center;
+  margin-bottom: $spacing-12;
+
+  &__title {
+    font-size: $font-size-4xl;
+    font-weight: $font-weight-bold;
+    margin-bottom: $spacing-4;
+  }
+
+  &__subtitle {
+    font-size: $font-size-lg;
+    color: $text-muted;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-8;
+}
+
+.category-card {
+  background-color: $white;
+  border: 1px solid $gray-200;
+  border-radius: $border-radius-xl;
+  padding: $spacing-8;
+  text-align: center;
+  transition: all $transition-base;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-4;
+
+  [data-theme="dark"] & {
+    background-color: $matte-dark-card;
+    border-color: $matte-dark-border;
+  }
+
+  &:hover {
+    transform: translateY(-8px);
+    border-color: $primary;
+    box-shadow: $shadow-lg;
+
+    .category-card__icon-wrap {
+      transform: scale(1.1);
+      background-color: $primary;
+      color: $white;
+    }
+  }
+
+  &__icon-wrap {
+    width: 80px;
+    height: 80px;
+    border-radius: $border-radius-lg;
+    background-color: $gray-100;
+    color: $primary;
+    @include flex-center;
+    font-size: 2.5rem;
+    transition: all $transition-fast;
+
+    [data-theme="dark"] & {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  &__name {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $black;
+
+    [data-theme="dark"] & {
+      color: $white;
+    }
+  }
+
+  &__description {
+    font-size: $font-size-sm;
+    color: $text-muted;
+    line-height: $line-height-relaxed;
+  }
+
+  &__count {
+    display: inline-block;
+    padding: $spacing-1 $spacing-4;
+    border-radius: $border-radius-full;
+    background-color: rgba($primary, 0.1);
+    color: $primary;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    [data-theme="dark"] & {
+      background-color: rgba($primary, 0.15);
+    }
+  }
+}
+
+// ─── Blog Listing ───────────────────────────────────────────────────────────
+
+.blog-header {
+  padding: $spacing-12 0;
+  border-bottom: 1px solid $gray-200;
+  margin-bottom: $spacing-12;
+
+  [data-theme="dark"] & {
+    border-bottom-color: $matte-dark-border;
+  }
+
+  &__title {
+    font-size: $font-size-3xl;
+    margin-bottom: $spacing-2;
+  }
+}
+
+.blog-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-8;
+
+  @include md {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @include lg {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

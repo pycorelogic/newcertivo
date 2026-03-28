@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Our Story — Certivo{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1 class="page-header__title">Our Story</h1>
+    <p class="page-header__subtitle">Elevating digital content through minimalist design and deep insights.</p>
+  </div>
+</div>
+
+<section class="section about-content">
+  <div class="container" style="max-width: 800px;">
+    <div class="prose">
+      <h2>The Mission</h2>
+      <p>Certivo was founded on the principle that the modern web is too noisy. We aim to provide a sanctuary for high-quality long-form content, free from intrusive advertisements and clutter.</p>
+      
+      <h2>What We Believe</h2>
+      <p>We believe in the power of Matte design—focusing on depth, texture, and substance rather than superficial flash. Our content spans Technology, Business, and Lifestyle, always with a focus on value for the reader.</p>
+    </div>
+
+    <div class="about-stats" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; margin-top: 3rem; text-align: center;">
+      <div class="about-stat">
+        <span class="about-stat__value" style="display: block; font-size: 2.5rem; font-weight: 800; color: #FF7043;">{{ total_posts }}</span>
+        <span class="about-stat__label" style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; color: #666;">Articles Published</span>
+      </div>
+      <div class="about-stat">
+        <span class="about-stat__value" style="display: block; font-size: 2.5rem; font-weight: 800; color: #FF7043;">{{ total_categories }}</span>
+        <span class="about-stat__label" style="text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem; color: #666;">Expert Categories</span>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

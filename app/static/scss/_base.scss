@@ -1,0 +1,387 @@
+// ============================================================================
+// BASE STYLES
+// ============================================================================
+
+// ─── CSS Reset ──────────────────────────────────────────────────────────────
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+// ─── Root & HTML ────────────────────────────────────────────────────────────
+
+:root {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+html {
+  scroll-behavior: smooth;
+  height: 100%;
+}
+
+body {
+  font-family: $font-primary;
+  font-size: $font-size-base;
+  font-weight: $font-weight-normal;
+  line-height: $line-height-relaxed;
+  color: $body-color;
+  background-color: $body-bg;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+}
+
+// ─── Typography ─────────────────────────────────────────────────────────────
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: $font-heading;
+  font-weight: $font-weight-bold;
+  line-height: $line-height-tight;
+  color: $heading-color;
+  margin-bottom: $spacing-4;
+  margin-top: 0;
+}
+
+h1 {
+  font-size: $font-size-4xl;
+
+  @include md {
+    font-size: $font-size-5xl;
+  }
+}
+
+h2 {
+  font-size: $font-size-3xl;
+
+  @include md {
+    font-size: $font-size-4xl;
+  }
+}
+
+h3 {
+  font-size: $font-size-2xl;
+
+  @include md {
+    font-size: $font-size-3xl;
+  }
+}
+
+h4 {
+  font-size: $font-size-xl;
+
+  @include md {
+    font-size: $font-size-2xl;
+  }
+}
+
+h5 {
+  font-size: $font-size-lg;
+
+  @include md {
+    font-size: $font-size-xl;
+  }
+}
+
+h6 {
+  font-size: $font-size-base;
+
+  @include md {
+    font-size: $font-size-lg;
+  }
+}
+
+p {
+  margin-bottom: $spacing-4;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// ─── Links ──────────────────────────────────────────────────────────────────
+
+a {
+  color: $link-color;
+  text-decoration: none;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: $link-hover-color;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $primary;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+// ─── Lists ──────────────────────────────────────────────────────────────────
+
+ul,
+ol {
+  margin-bottom: $spacing-4;
+  padding-left: $spacing-6;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+li {
+  margin-bottom: $spacing-2;
+}
+
+// ─── Images ─────────────────────────────────────────────────────────────────
+
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: $border-radius;
+}
+
+figure {
+  margin: 0 0 $spacing-6 0;
+
+  img {
+    width: 100%;
+  }
+
+  figcaption {
+    margin-top: $spacing-3;
+    font-size: $font-size-sm;
+    color: $text-muted;
+    text-align: center;
+    font-style: italic;
+  }
+}
+
+// ─── Code ───────────────────────────────────────────────────────────────────
+
+code {
+  font-family: $font-mono;
+  font-size: 0.9em;
+  padding: 2px 6px;
+  background-color: $gray-100;
+  border-radius: $border-radius-sm;
+  color: $danger;
+}
+
+pre {
+  font-family: $font-mono;
+  font-size: $font-size-sm;
+  line-height: $line-height-relaxed;
+  background-color: $gray-900;
+  color: $gray-100;
+  padding: $spacing-4;
+  border-radius: $border-radius;
+  overflow-x: auto;
+  margin-bottom: $spacing-6;
+
+  code {
+    background: none;
+    padding: 0;
+    color: inherit;
+    font-size: inherit;
+  }
+}
+
+// ─── Blockquotes ────────────────────────────────────────────────────────────
+
+blockquote {
+  margin: $spacing-6 0;
+  padding: $spacing-4 $spacing-6;
+  border-left: 4px solid $primary;
+  background-color: $gray-50;
+  font-style: italic;
+  color: $gray-700;
+  border-radius: 0 $border-radius $border-radius 0;
+
+  p {
+    margin-bottom: $spacing-3;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  cite {
+    display: block;
+    margin-top: $spacing-3;
+    font-size: $font-size-sm;
+    color: $text-muted;
+    font-style: normal;
+
+    &::before {
+      content: '— ';
+    }
+  }
+}
+
+// ─── Horizontal Rule ────────────────────────────────────────────────────────
+
+hr {
+  margin: $spacing-8 0;
+  border: 0;
+  border-top: $border-width solid $border-color;
+  opacity: 0.5;
+}
+
+// ─── Tables ─────────────────────────────────────────────────────────────────
+
+table {
+  width: 100%;
+  margin-bottom: $spacing-6;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+th,
+td {
+  padding: $spacing-3 $spacing-4;
+  text-align: left;
+  border-bottom: $border-width solid $border-color;
+}
+
+th {
+  font-weight: $font-weight-semibold;
+  color: $heading-color;
+  background-color: $gray-50;
+}
+
+tbody tr:hover {
+  background-color: $gray-50;
+}
+
+// ─── Form Elements Base ─────────────────────────────────────────────────────
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: $line-height-normal;
+  margin: 0;
+}
+
+button,
+[type='button'],
+[type='reset'],
+[type='submit'] {
+  -webkit-appearance: button;
+  cursor: pointer;
+}
+
+button::-moz-focus-inner,
+[type='button']::-moz-focus-inner,
+[type='reset']::-moz-focus-inner,
+[type='submit']::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
+}
+
+// ─── Selection ──────────────────────────────────────────────────────────────
+
+::selection {
+  background-color: rgba($primary, 0.2);
+  color: $body-color;
+}
+
+::-moz-selection {
+  background-color: rgba($primary, 0.2);
+  color: $body-color;
+}
+
+// ─── Main Content Wrapper ───────────────────────────────────────────────────
+
+main {
+  flex: 1;
+  width: 100%;
+}
+
+// ─── Container ──────────────────────────────────────────────────────────────
+
+.container {
+  @include container;
+}
+
+.container-fluid {
+  width: 100%;
+  padding-left: $container-padding;
+  padding-right: $container-padding;
+
+  @include lg {
+    padding-left: $container-padding-lg;
+    padding-right: $container-padding-lg;
+  }
+}
+
+// ─── Screen Reader Only ─────────────────────────────────────────────────────
+
+.sr-only {
+  @include visually-hidden;
+}
+
+// ─── Skip Link ──────────────────────────────────────────────────────────────
+
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  background: $primary;
+  color: $white;
+  padding: $spacing-3 $spacing-4;
+  z-index: 9999;
+  border-radius: 0 0 $border-radius 0;
+
+  &:focus {
+    top: 0;
+  }
+}
+
+// ─── Focus Visible ──────────────────────────────────────────────────────────
+
+:focus-visible {
+  outline: 2px solid $primary;
+  outline-offset: 2px;
+}
+
+// ─── Loading Spinner ────────────────────────────────────────────────────────
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  display: inline-block;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 3px solid rgba($primary, 0.2);
+  border-top-color: $primary;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+// ─── Scrollbar Styling ──────────────────────────────────────────────────────
+
+* {
+  @include custom-scrollbar;
+}

@@ -1,0 +1,141 @@
+<div class="admin-form-field">
+  <label for="aff-title" class="admin-form-label">
+    Title <span class="admin-form-required" aria-label="required">*</span>
+  </label>
+  <input
+    type="text"
+    id="aff-title"
+    name="title"
+    class="admin-form-input"
+    required
+    maxlength="200"
+    placeholder="e.g. Bluehost Web Hosting, Grammarly Premium…"
+    aria-required="true"
+  />
+</div>
+
+<div class="admin-form-field">
+  <label for="aff-url" class="admin-form-label">
+    Affiliate URL <span class="admin-form-required" aria-label="required">*</span>
+  </label>
+  <input
+    type="url"
+    id="aff-url"
+    name="url"
+    class="admin-form-input"
+    required
+    placeholder="https://affiliate.example.com/product?ref=certivo"
+    aria-required="true"
+  />
+  <span class="admin-form-help-text">The full URL including your affiliate tracking parameters.</span>
+</div>
+
+<div class="admin-form-field">
+  <label for="aff-image-url" class="admin-form-label">
+    Product Image URL
+    <span class="admin-form-label-hint">(optional)</span>
+  </label>
+  <input
+    type="url"
+    id="aff-image-url"
+    name="image_url"
+    class="admin-form-input"
+    placeholder="https://cdn.example.com/product-image.jpg"
+  />
+  <span class="admin-form-help-text">Direct URL to a product image (300×180 px recommended).</span>
+</div>
+
+<div class="admin-form-field">
+  <label for="aff-description" class="admin-form-label">
+    Description
+    <span class="admin-form-label-hint">(optional)</span>
+  </label>
+  <textarea
+    id="aff-description"
+    name="description"
+    class="admin-form-textarea admin-form-textarea--sm"
+    rows="3"
+    maxlength="500"
+    placeholder="A short, compelling description of this product or service…"
+  ></textarea>
+</div>
+
+<div class="admin-form-grid admin-form-grid--3">
+
+  <div class="admin-form-field">
+    <label for="aff-cta-text" class="admin-form-label">
+      CTA Button Text
+    </label>
+    <input
+      type="text"
+      id="aff-cta-text"
+      name="cta_text"
+      class="admin-form-input admin-form-input--sm"
+      maxlength="100"
+      value="Get Deal"
+      placeholder="Get Deal, Try for Free, Learn More…"
+    />
+  </div>
+
+  <div class="admin-form-field">
+    <label for="aff-badge-text" class="admin-form-label">
+      Badge Text
+      <span class="admin-form-label-hint">(optional)</span>
+    </label>
+    <input
+      type="text"
+      id="aff-badge-text"
+      name="badge_text"
+      class="admin-form-input admin-form-input--sm"
+      maxlength="60"
+      placeholder="50% OFF, Editor's Pick…"
+    />
+  </div>
+
+  <div class="admin-form-field">
+    <label for="aff-position" class="admin-form-label">
+      Display Order
+    </label>
+    <input
+      type="number"
+      id="aff-position"
+      name="position"
+      class="admin-form-input admin-form-input--sm"
+      min="0"
+      max="9999"
+      value="0"
+      placeholder="0"
+    />
+    <span class="admin-form-help-text">Lower number = shown first.</span>
+  </div>
+
+</div>
+
+<div class="admin-form-toggles-row">
+
+  <label class="admin-form-toggle-label">
+    <input
+      type="checkbox"
+      name="is_active"
+      id="aff-is-active"
+      checked
+    />
+    <span class="admin-form-toggle-label__text">
+      <strong>Active</strong>
+      <span class="admin-form-toggle-label__desc">Show this link on the site</span>
+    </span>
+  </label>
+
+  <label class="admin-form-toggle-label">
+    <input
+      type="checkbox"
+      name="is_sidebar"
+      id="aff-is-sidebar"
+    />
+    <span class="admin-form-toggle-label__text">
+      <strong>Show in Sidebar</strong>
+      <span class="admin-form-toggle-label__desc">Display in the sidebar recommendation widget</span>
+    </span>
+  </label>
+
+</div>

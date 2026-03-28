@@ -1,0 +1,350 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ site_name }} — {{ site_tagline }}{% endblock %}
+{% block meta_description %}{{ site_description }}{% endblock %}
+
+{% block content %}
+
+{# ── HERO SECTION ─────────────────────────────────────────────────────────── #}
+<section class="hero" aria-label="Featured posts">
+  {% if featured_posts %}
+  <div class="hero__container">
+
+    {# Main featured post #}
+    {% set main = featured_posts[0] %}
+    <article class="hero__main" aria-labelledby="hero-main-title">
+      <a href="{{ url_for('blog.detail', slug=main.slug) }}" class="hero__main-link" tabindex="-1" aria-hidden="true">
+        <div class="hero__main-img-wrap">
+          {% if main.featured_image_url %}
+          <img
+            src="{{ main.featured_image_url }}"
+            alt="{{ main.featured_image_alt or main.title }}"
+            class="hero__main-img"
+            width="800"
+            height="480"
+            loading="eager"
+            fetchpriority="high"
+          />
+          {% else %}
+          <div class="hero__main-img-placeholder">
+            <span class="hero__placeholder-icon">✦</span>
+          </div>
+          {% endif %}
+        </div>
+      </a>
+      <div class="hero__main-body">
+        {% if main.category %}
+        <a href="{{ url_for('blog.category', slug=main.category.slug) }}"
+           class="hero__category-badge"
+           style="background: {{ main.category.color }}20; color: {{ main.category.color }}; border-color: {{ main.category.color }}40">
+          {{ main.category.name }}
+        </a>
+        {% endif %}
+        <h1 class="hero__main-title" id="hero-main-title">
+          <a href="{{ url_for('blog.detail', slug=main.slug) }}" class="hero__main-title-link">
+            {{ main.title }}
+          </a>
+        </h1>
+        <p class="hero__main-excerpt">
+          {{ main.excerpt or (main.content | strip_html | truncate_words(30)) }}
+        </p>
+        <div class="hero__main-meta">
+          <div class="hero__author">
+            <img
+              src="{{ main.author.get_avatar_url() }}"
+              alt="{{ main.author.username }}"
+              class="hero__author-avatar"
+              width="32"
+              height="32"
+              loading="lazy"
+            />
+            <span class="hero__author-name">{{ main.author.username }}</span>
+          </div>
+          <time class="hero__date" datetime="{{ main.iso_date }}">{{ main.short_date }}</time>
+          <span class="hero__read-time">{{ main.reading_time }} min read</span>
+          <span class="hero__views">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            {{ main.views | format_number }}
+          </span>
+        </div>
+        <a href="{{ url_for('blog.detail', slug=main.slug) }}" class="btn btn--primary hero__read-btn">
+          Read Article
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </a>
+      </div>
+    </article>
+
+    {# Secondary featured posts #}
+    {% if featured_posts|length > 1 %}
+    <div class="hero__secondary">
+      {% for post in featured_posts[1:3] %}
+      <article class="hero__secondary-card" aria-labelledby="hero-sec-{{ loop.index }}">
+        <a href="{{ url_for('blog.detail', slug=post.slug) }}" class="hero__secondary-link" tabindex="-1" aria-hidden="true">
+          <div class="hero__secondary-img-wrap">
+            {% if post.featured_image_url %}
+            <img
+              src="{{ post.featured_image_url }}"
+              alt="{{ post.featured_image_alt or post.title }}"
+              class="hero__secondary-img"
+              width="400"
+              height="240"
+              loading="lazy"
+            />
+            {% else %}
+            <div class="hero__secondary-img-placeholder">
+              ✦</span>
+            </div>
+            {% endif %}
+          </div>
+        </a>
+        <div class="hero__secondary-body">
+          {% if post.category %}
+          <a href="{{ url_for('blog.category', slug=post.category.slug) }}"
+             class="hero__category-badge hero__category-badge--sm"
+             style="background: {{ post.category.color }}20; color: {{ post.category.color }}">
+            {{ post.category.name }}
+          </a>
+          {% endif %}
+          <h2 class="hero__secondary-title" id="hero-sec-{{ loop.index }}">
+            <a href="{{ url_for('blog.detail', slug=post.slug) }}" class="hero__secondary-title-link">
+              {{ post.title }}
+            </a>
+          </h2>
+          <div class="hero__secondary-meta">
+            <time datetime="{{ post.iso_date }}">{{ post.short_date }}</time>
+            <span>{{ post.reading_time }} min read</span>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+  </div>
+  {% else %}
+  {# No featured posts fallback #}
+  <div class="hero__empty">
+    <div class="container">
+      <div class="hero__empty-inner">
+        <span class="hero__empty-icon">✦</span>
+        <h1 class="hero__empty-title">Welcome to {{ site_name }}</h1>
+        <p class="hero__empty-text">{{ site_tagline }}</p>
+        <a href="{{ url_for('blog.list') }}" class="btn btn--primary btn--lg">Explore All Posts</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</section>
+
+{# ── LATEST POSTS ─────────────────────────────────────────────────────────── #}
+<section class="section latest-posts" aria-labelledby="latest-heading">
+  <div class="container">
+    <div class="layout-with-sidebar">
+
+      {# Main Column #}
+      <div class="layout-main">
+
+        <div class="section__header">
+          <div class="section__header-left">
+            <span class="section__kicker">Fresh Content</span>
+            <h2 class="section__title" id="latest-heading">Latest Articles</h2>
+          </div>
+          <a href="{{ url_for('blog.list') }}" class="section__view-all btn btn--ghost">
+            View All
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+        </div>
+
+        {% if latest_posts %}
+        <div class="posts-grid posts-grid--3">
+          {% for post in latest_posts %}
+          {% include 'partials/post_card.html' %}
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <span class="empty-state__icon">📝</span>
+          <h3 class="empty-state__title">No posts yet</h3>
+          <p class="empty-state__text">Check back soon — great content is on its way!</p>
+        </div>
+        {% endif %}
+
+        {# ── Popular Posts Section ─────────────────────────────────────────── #}
+        {% if popular_posts %}
+        <div class="section__sub-header">
+          <span class="section__kicker">Trending</span>
+          <h2 class="section__title">
+            <span class="section__title-icon">🔥</span> Popular This Week
+          </h2>
+        </div>
+        <div class="posts-list">
+          {% for post in popular_posts %}
+          <article class="post-list-item" aria-labelledby="pop-post-{{ loop.index }}">
+            <span class="post-list-item__rank">{{ "%02d"|format(loop.index) }}</span>
+            <div class="post-list-item__body">
+              {% if post.category %}
+              <a href="{{ url_for('blog.category', slug=post.category.slug) }}"
+                 class="post-list-item__cat"
+                 style="color: {{ post.category.color }}">
+                {{ post.category.name }}
+              </a>
+              {% endif %}
+              <h3 class="post-list-item__title" id="pop-post-{{ loop.index }}">
+                <a href="{{ url_for('blog.detail', slug=post.slug) }}" class="post-list-item__link">
+                  {{ post.title }}
+                </a>
+              </h3>
+              <div class="post-list-item__meta">
+                <time datetime="{{ post.iso_date }}">{{ post.short_date }}</time>
+                <span class="post-list-item__views">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  {{ "{:,}".format(post.views) }}
+                </span>
+                <span class="post-list-item__comments">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  {{ post.approved_comment_count }}
+                </span>
+              </div>
+            </div>
+            {% if post.featured_image_url %}
+            <a href="{{ url_for('blog.detail', slug=post.slug) }}" class="post-list-item__thumb" tabindex="-1" aria-hidden="true">
+              <img
+                src="{{ post.featured_image_url }}"
+                alt="{{ post.featured_image_alt or post.title }}"
+                width="80"
+                height="80"
+                loading="lazy"
+                class="post-list-item__img"
+              />
+            </a>
+            {% endif %}
+          </article>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+      </div>{# /.layout-main #}
+
+      {# Sidebar #}
+      {% include 'partials/sidebar.html' %}
+
+    </div>{# /.layout-with-sidebar #}
+  </div>{# /.container #}
+</section>
+
+{# ── CATEGORIES SHOWCASE ──────────────────────────────────────────────────── #}
+{% if categories %}
+<section class="section categories-showcase" aria-labelledby="categories-heading">
+  <div class="container">
+    <div class="section__header section__header--centered">
+      <span class="section__kicker">Explore Topics</span>
+      <h2 class="section__title" id="categories-heading">Browse by Category</h2>
+      <p class="section__subtitle">Discover content across all our topics and find what matters most to you.</p>
+    </div>
+    <div class="categories-grid">
+      {% for cat in categories %}
+      <a href="{{ url_for('blog.category', slug=cat.slug) }}"
+         class="category-card"
+         style="--cat-color: {{ cat.color }}"
+         aria-label="{{ cat.name }} — {{ cat.published_post_count }} posts">
+        <div class="category-card__icon-wrap" style="background: {{ cat.color }}20">
+          {% if cat.icon %}
+          <i class="{{ cat.icon }}" aria-hidden="true"></i>
+          {% else %}
+          <span class="category-card__default-icon" style="color: {{ cat.color }}">
+            {% if loop.index == 1 %}💻
+            {% elif loop.index == 2 %}💼
+            {% elif loop.index == 3 %}🌿
+            {% elif loop.index == 4 %}✈️
+            {% elif loop.index == 5 %}📸
+            {% else %}📌
+            {% endif %}
+          </span>
+          {% endif %}
+        </div>
+        <h3 class="category-card__name" style="color: {{ cat.color }}">{{ cat.name }}</h3>
+        {% if cat.description %}
+        <p class="category-card__desc">{{ cat.description | truncate(60, True, '…') }}</p>
+        {% endif %}
+        <span class="category-card__count" style="background: {{ cat.color }}; color: #fff">
+          {{ cat.published_post_count }} post{{ 's' if cat.published_post_count != 1 else '' }}
+        </span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# ── AFFILIATE CARDS SECTION ──────────────────────────────────────────────── #}
+{% if affiliate_cards %}
+<section class="section affiliate-section" aria-labelledby="affiliate-heading">
+  <div class="container">
+    <div class="section__header section__header--centered">
+      <span class="section__kicker">Recommendations</span>
+      <h2 class="section__title" id="affiliate-heading">
+        <span>⭐</span> Editor's Picks
+      </h2>
+      <p class="section__subtitle">
+        Handpicked tools, resources, and products our team uses and trusts.
+        <small class="section__disclaimer">(Affiliate links — see our <a href="#">disclosure policy</a>.)</small>
+      </p>
+    </div>
+    <div class="affiliate-grid">
+      {% for link in affiliate_cards %}
+      {% include 'partials/affiliate_card.html' %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{# ── NEWSLETTER CTA SECTION ───────────────────────────────────────────────── #}
+<section class="section newsletter-cta" aria-labelledby="newsletter-heading">
+  <div class="container">
+    <div class="newsletter-cta__inner">
+      <div class="newsletter-cta__text">
+        <span class="newsletter-cta__icon">📬</span>
+        <h2 class="newsletter-cta__title" id="newsletter-heading">Never Miss an Article</h2>
+        <p class="newsletter-cta__subtitle">
+          Join thousands of readers who get our latest posts delivered straight to their inbox.
+          Quality content, zero spam.
+        </p>
+      </div>
+      <div class="newsletter-cta__action">
+        <a href="{{ url_for('main.contact') }}" class="btn btn--primary btn--lg">
+          Subscribe for Free
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+        </a>
+        <a href="{{ url_for('main.feedback') }}" class="btn btn--ghost btn--lg">
+          Leave Feedback
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

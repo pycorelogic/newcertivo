@@ -1,0 +1,204 @@
+{% extends 'admin/base.html' %}
+
+{% block admin_title %}Feedback{% endblock %}
+
+{% block admin_breadcrumb %}
+<li class="admin-topbar__breadcrumb-sep" aria-hidden="true">›</li>
+<li class="admin-topbar__breadcrumb-item admin-topbar__breadcrumb-item--current" aria-current="page">
+  Feedback
+</li>
+{% endblock %}
+
+{% block admin_content %}
+<div class="admin-page-header">
+  <div class="admin-page-header__left">
+    <h1 class="admin-page-header__title">
+      <span class="admin-page-header__title-icon">⭐</span>
+      Feedback
+    </h1>
+    <p class="admin-page-header__subtitle">
+      View ratings and feedback submitted by your readers.
+    </p>
+  </div>
+</div>
+
+{% if total_feedback > 0 %}
+{# ── RATING SUMMARY ───────────────────────────────────────────────────────── #}
+<div class="admin-feedback-summary">
+
+  <div class="admin-feedback-summary__score">
+    <div class="admin-feedback-summary__avg">{{ avg_rating }}</div>
+    <div class="admin-feedback-summary__stars" aria-label="Average rating {{ avg_rating }} out of 5">
+      {% for i in range(1, 6) %}
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+           class="{% if avg_rating >= i %}feedback-star--filled{% elif avg_rating >= i - 0.5 %}feedback-star--half{% else %}feedback-star--empty{% endif %}"
+           stroke="currentColor" stroke-width="1.5"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+      {% endfor %}
+    </div>
+    <div class="admin-feedback-summary__count">
+      Based on <strong>{{ total_feedback }}</strong> rating{{ 's' if total_feedback != 1 else '' }}
+    </div>
+  </div>
+
+  <div class="admin-feedback-summary__bars">
+    {% for star in range(5, 0, -1) %}
+    {% set count = rating_dist.get(star, 0) %}
+    {% set pct = ((count / total_feedback) * 100) | round | int if total_feedback > 0 else 0 %}
+    <div class="admin-feedback-bar-row">
+      <span class="admin-feedback-bar-row__label">
+        {{ star }}
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"
+             stroke="none" aria-hidden="true">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </span>
+      <div class="admin-feedback-bar-row__track">
+        <div class="admin-feedback-bar-row__fill"
+             style="width: {{ pct }}%"
+             role="progressbar"
+             aria-valuenow="{{ pct }}"
+             aria-valuemin="0"
+             aria-valuemax="100"
+             aria-label="{{ star }} star: {{ count }} responses ({{ pct }}%)">
+        </div>
+      </div>
+      <span class="admin-feedback-bar-row__count">{{ count }}</span>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+{% endif %}
+
+{# ── FEEDBACK LIST ────────────────────────────────────────────────────────── #}
+<div class="admin-panel">
+  <div class="admin-panel__header">
+    <h2 class="admin-panel__title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+      </svg>
+      All Feedback
+    </h2>
+    {% if pagination %}
+    <span class="admin-panel__header-count">
+      {{ pagination.total }} entr{{ 'ies' if pagination.total != 1 else 'y' }}
+    </span>
+    {% endif %}
+  </div>
+  <div class="admin-panel__body admin-panel__body--no-pad">
+
+    {% if feedback_items %}
+    <div class="admin-feedback-list">
+      {% for fb in feedback_items %}
+      <div class="admin-feedback-card" id="feedback-{{ fb.id }}">
+
+        <div class="admin-feedback-card__header">
+          <div class="admin-feedback-card__author">
+            <div class="admin-feedback-card__avatar" aria-hidden="true">
+              {{ fb.name[:1] | upper }}
+            </div>
+            <div class="admin-feedback-card__author-info">
+              <span class="admin-feedback-card__name">{{ fb.name }}</span>
+              <a href="mailto:{{ fb.email }}" class="admin-feedback-card__email">
+                {{ fb.email }}
+              </a>
+            </div>
+          </div>
+
+          <div class="admin-feedback-card__meta">
+            <div class="admin-feedback-card__stars"
+                 aria-label="Rating: {{ fb.rating }} out of 5 stars">
+              {% for i in range(1, 6) %}
+              <svg width="16" height="16" viewBox="0 0 24 24"
+                   fill="{% if i <= fb.rating %}currentColor{% else %}none{% endif %}"
+                   stroke="currentColor" stroke-width="1.5"
+                   stroke-linecap="round" stroke-linejoin="round"
+                   class="{% if i <= fb.rating %}feedback-star--filled{% else %}feedback-star--empty{% endif %}"
+                   aria-hidden="true">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              {% endfor %}
+              <span class="admin-feedback-card__rating-num">{{ fb.rating }}/5</span>
+            </div>
+
+            <time class="admin-feedback-card__date"
+                  datetime="{{ fb.created_at.strftime('%Y-%m-%dT%H:%M:%S') }}"
+                  title="{{ fb.short_date }}">
+              {{ fb.created_at | time_ago }}
+            </time>
+          </div>
+        </div>
+
+        <div class="admin-feedback-card__body">
+          <p class="admin-feedback-card__message">{{ fb.message }}</p>
+        </div>
+
+        <div class="admin-feedback-card__actions">
+          <a href="mailto:{{ fb.email }}?subject=Re: Your feedback on {{ site_name }}"
+             class="admin-feedback-card__action-btn admin-feedback-card__action-btn--reply"
+             title="Reply via email">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="9 14 4 9 9 4"/>
+              <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
+            </svg>
+            Reply
+          </a>
+          <form action="{{ url_for('admin.feedback_delete', fb_id=fb.id) }}"
+                method="post" class="admin-feedback-card__action-form"
+                onsubmit="return confirm('Delete this feedback from {{ fb.name | replace("'", "\\'") }}?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit"
+                    class="admin-feedback-card__action-btn admin-feedback-card__action-btn--delete"
+                    title="Delete feedback">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+              </svg>
+              Delete
+            </button>
+          </form>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if pagination and pagination.pages > 1 %}
+    <div class="admin-pagination">
+      {% if pagination.has_prev %}
+      <a href="{{ url_for('admin.feedback', page=pagination.prev_num) }}"
+         class="admin-pagination__btn" rel="prev">← Previous</a>
+      {% endif %}
+      <span class="admin-pagination__info">
+        Page {{ pagination.page }} of {{ pagination.pages }}
+      </span>
+      {% if pagination.has_next %}
+      <a href="{{ url_for('admin.feedback', page=pagination.next_num) }}"
+         class="admin-pagination__btn" rel="next">Next →</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="admin-empty-state admin-empty-state--large">
+      <span class="admin-empty-state__icon">💬</span>
+      <h3 class="admin-empty-state__title">No feedback yet</h3>
+      <p class="admin-empty-state__text">
+        Feedback submitted through the feedback form will appear here.
+        Share the <a href="{{ url_for('main.feedback') }}" target="_blank" rel="noopener">feedback page</a>
+        with your readers to collect their thoughts!
+      </p>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

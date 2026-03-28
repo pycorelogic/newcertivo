@@ -1,0 +1,130 @@
+// ============================================================================
+// MODAL COMPONENTS
+// ============================================================================
+
+.admin-modal {
+  position: fixed;
+  inset: 0;
+  z-index: $z-index-modal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-4;
+  opacity: 0;
+  visibility: hidden;
+  transition: all $transition-base;
+
+  &[hidden] {
+    display: none;
+  }
+
+  &:not([hidden]) {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  &__backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(4px);
+  }
+
+  &__box {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    background-color: $white;
+    border-radius: $border-radius-2xl;
+    box-shadow: $shadow-2xl;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    overflow: hidden;
+    transform: translateY(20px);
+    transition: transform $transition-base;
+
+    // For large modals, allow the body to scroll independently
+    &--lg {
+      max-width: 800px;
+    }
+
+    [data-theme="dark"] & {
+      background-color: #1e1e1e;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .admin-modal:not([hidden]) & {
+      transform: translateY(0);
+    }
+  }
+
+  &__header {
+    padding: $spacing-5 $spacing-6;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+
+    [data-theme="dark"] & {
+      border-bottom-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  &__title {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    color: $black;
+
+    [data-theme="dark"] & {
+      color: $white;
+    }
+
+    svg {
+      color: $primary;
+    }
+  }
+
+  &__close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: $gray-400;
+    cursor: pointer;
+    line-height: 1;
+    padding: $spacing-2;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $danger;
+    }
+  }
+
+  &__body {
+    padding: $spacing-6;
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1 1 auto;
+    @include custom-scrollbar;
+  }
+
+  &__footer {
+    padding: $spacing-4 $spacing-6;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: flex-end;
+    gap: $spacing-3;
+    background-color: rgba(0, 0, 0, 0.01);
+    flex-shrink: 0;
+
+    [data-theme="dark"] & {
+      border-top-color: rgba(255, 255, 255, 0.05);
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+  }
+}

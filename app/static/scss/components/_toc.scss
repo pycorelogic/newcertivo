@@ -1,0 +1,125 @@
+// ============================================================================
+// TABLE OF CONTENTS (TOC)
+// ============================================================================
+
+.toc {
+  background-color: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $border-radius-lg;
+  padding: $spacing-6;
+  margin-bottom: $spacing-10;
+  max-width: 100%;
+
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.02);
+    border-color: $matte-dark-border;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-4;
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $black;
+    margin: 0 !important;
+
+    [data-theme="dark"] & {
+      color: $white;
+    }
+
+    svg {
+      color: $primary;
+    }
+  }
+
+  &__toggle {
+    @include flex-center;
+    width: 28px;
+    height: 28px;
+    background-color: $white;
+    border: 1px solid $gray-200;
+    border-radius: $border-radius-sm;
+    color: $gray-600;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    [data-theme="dark"] & {
+      background-color: $matte-dark-card;
+      border-color: $matte-dark-border;
+      color: $gray-400;
+    }
+
+    &:hover {
+      background-color: $primary;
+      border-color: $primary;
+      color: $white;
+    }
+
+    svg {
+      transition: transform 0.3s ease;
+    }
+
+    &[aria-expanded="false"] svg {
+      transform: rotate(-90deg);
+    }
+  }
+
+  &__list {
+    margin: 0 !important;
+    padding: 0 !important;
+    list-style: none !important;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+
+    &[aria-hidden="true"] {
+      display: none;
+    }
+  }
+
+  &__item {
+    margin: 0 !important;
+    font-size: $font-size-sm;
+
+    &--h3 {
+      padding-left: $spacing-4;
+    }
+
+    &--h4 {
+      padding-left: $spacing-8;
+    }
+  }
+
+  &__link {
+    display: block;
+    color: $gray-700;
+    text-decoration: none;
+    padding: $spacing-1 $spacing-2;
+    border-radius: $border-radius-sm;
+    transition: all $transition-fast;
+
+    [data-theme="dark"] & {
+      color: $gray-400;
+    }
+
+    &:hover {
+      color: $primary;
+      background-color: rgba($primary, 0.05);
+      padding-left: $spacing-3;
+    }
+
+    &.active {
+      color: $primary;
+      font-weight: $font-weight-bold;
+      background-color: rgba($primary, 0.1);
+    }
+  }
+}

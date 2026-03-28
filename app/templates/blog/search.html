@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+
+{% block title %}{% if q %}Search: "{{ q }}"{% else %}Search{% endif %}{% endblock %}
+{% block meta_description %}Search results for "{{ q }}" on {{ site_name }}.{% endblock %}
+{% block meta_robots %}noindex, follow{% endblock %}
+
+{% block content %}
+
+{# ── PAGE HEADER ──────────────────────────────────────────────────────────── #}
+<div class="page-header page-header--search">
+  <div class="container">
+    <div class="page-header__inner">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol class="breadcrumb__list" role="list">
+          <li class="breadcrumb__item">
+            <a href="{{ url_for('main.index') }}" class="breadcrumb__link">Home</a>
+          </li>
+          <li class="breadcrumb__item" aria-hidden="true">
+            <span class="breadcrumb__sep">›</span>
+          </li>
+          <li class="breadcrumb__item">
+            <a href="{{ url_for('blog.list') }}" class="breadcrumb__link">Blog</a>
+          </li>
+          <li class="breadcrumb__item" aria-hidden="true">
+            <span class="breadcrumb__sep">›</span>
+          </li>
+          <li class="breadcrumb__item breadcrumb__item--current" aria-current="page">
+            <span class="breadcrumb__current">Search</span>
+          </li>
+        </ol>
+      </nav>
+
+      <h1 class="page-header__title">
+        <span class="page-header__title-icon">🔍</span>
+        {% if q %}
+          Search Results for &ldquo;<em>{{ q }}</em>&rdquo;
+        {% else %}
+          Search Articles
+        {% endif %}
+      </h1>
+
+      {% if q and pagination %}
+      <p class="page-header__count">
+        Found <strong>{{ pagination.total }}</strong>
+        result{{ 's' if pagination.total != 1 else '' }}
+      </p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{# ── SEARCH BAR ───────────────────────────────────────────────────────────── #}
+<div class="search-bar-section">
+  <div class="container">
+    <form action="{{ url_for('blog.search') }}" method="get"
+          class="search-bar-form" role="search" aria-label="Search articles">
+      <div class="search-bar-form__group">
+        <label for="search-page-input" class="sr-only">Search articles</label>
+        <input
+          type="search"
+          id="search-page-input"
+          name="q"
+          class="search-bar-form__input"
+          value="{{ q or '' }}"
+          placeholder="Search articles, topics, categories…"
+          autocomplete="off"
+          autofocus
+          aria-label="Search query"
+        />
+        <button type="submit" class="search-bar-form__btn btn btn--primary">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Search
+        </button>
+      </div>
+
+      {% if q %}
+      <div class="search-bar-form__clear">
+        <a href="{{ url_for('blog.search') }}" class="search-bar-form__clear-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"/>
+            <line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Clear search
+        </a>
+      </div>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+{# ── MAIN CONTENT ─────────────────────────────────────────────────────────── #}
+<section class="section search-results-section" aria-labelledby="search-results-heading">
+  <div class="container">
+    <div class="layout-with-sidebar">
+
+      <div class="layout-main">
+
+        <h2 class="sr-only" id="search-results-heading">
+          {% if q %}Search results for "{{ q }}"{% else %}Search{% endif %}
+        </h2>
+
+        {% if not q %}
+        {# ── No query yet — show search prompt ─────────────────────────────── #}
+        <div class="empty-state empty-state--large">
+          <div class="empty-state__icon-wrap">
+            <span class="empty-state__icon">🔍</span>
+          </div>
+          <h3 class="empty-state__title">What are you looking for?</h3>
+          <p class="empty-state__text">
+            Enter a keyword above to search through all our articles,
+            topics, and categories.
+          </p>
+
+          {# Popular category suggestions #}
+          {% if nav_categories %}
+          <div class="search-suggestions">
+            <p class="search-suggestions__label">Browse by category:</p>
+            <div class="search-suggestions__tags">
+              {% for cat in nav_categories %}
+              <a href="{{ url_for('blog.category', slug=cat.slug) }}"
+                 class="search-suggestions__tag"
+                 style="border-color: {{ cat.color }}40; color: {{ cat.color }}; background: {{ cat.color }}10">
+                {{ cat.name }}
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        {% elif posts %}
+        {# ── Results found ─────────────────────────────────────────────────── #}
+
+        <div class="list-toolbar">
+          <p class="list-toolbar__count" aria-live="polite">
+            Showing
+            <strong>{{ ((pagination.page - 1) * pagination.per_page) + 1 }}</strong>
+            –
+            <strong>{{ [pagination.page * pagination.per_page, pagination.total] | min }}</strong>
+            of <strong>{{ pagination.total }}</strong>
+            result{{ 's' if pagination.total != 1 else '' }} for
+            &ldquo;<em>{{ q }}</em>&rdquo;
+          </p>
+        </div>
+
+        <div class="posts-grid posts-grid--3">
+          {% for post in posts %}
+          {% include 'partials/post_card.html' %}
+          {% endfor %}
+        </div>
+
+        {# ── AdSense: Search Results ────────────────────────────────────────── #}
+        {% if pagination.page == 1 %}
+        <div class="adsense-inline" aria-label="Advertisement">
+          {% if adsense_enabled and adsense_client_id and 'XXXXXXXXX' not in adsense_client_id %}
+          <ins class="adsbygoogle"
+               style="display:block;text-align:center"
+               data-ad-layout="in-article"
+               data-ad-format="fluid"
+               data-ad-client="{{ adsense_client_id }}"
+               data-ad-slot="6677889900"></ins>
+          <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+          {% else %}
+          <div class="adsense-placeholder adsense-placeholder--inline">
+            <span>AdSense — In-Article (Search Results)</span>
+          </div>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% include 'partials/pagination.html' %}
+
+        {% else %}
+        {# ── No results ────────────────────────────────────────────────────── #}
+        <div class="empty-state empty-state--large">
+          <div class="empty-state__icon-wrap">
+            <span class="empty-state__icon">😕</span>
+          </div>
+          <h3 class="empty-state__title">No results for &ldquo;{{ q }}&rdquo;</h3>
+          <p class="empty-state__text">
+            We couldn't find any articles matching your search.
+            Try different keywords or browse by category below.
+          </p>
+
+          <div class="search-no-results__suggestions">
+            <h4 class="search-no-results__suggestions-title">Suggestions:</h4>
+            <ul class="search-no-results__tips">
+              <li>Check for typos or spelling errors</li>
+              <li>Try more general or fewer keywords</li>
+              <li>Browse by category using the links below</li>
+            </ul>
+          </div>
+
+          {% if nav_categories %}
+          <div class="search-suggestions" style="margin-top: 1.5rem">
+            <p class="search-suggestions__label">Browse categories:</p>
+            <div class="search-suggestions__tags">
+              {% for cat in nav_categories %}
+              <a href="{{ url_for('blog.category', slug=cat.slug) }}"
+                 class="search-suggestions__tag"
+                 style="border-color: {{ cat.color }}40; color: {{ cat.color }}; background: {{ cat.color }}10">
+                {{ cat.name }}
+                <span class="search-suggestions__count">{{ cat.published_post_count }}</span>
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="search-no-results__actions" style="margin-top: 2rem">
+            <a href="{{ url_for('blog.list') }}" class="btn btn--primary">
+              Browse All Articles
+            </a>
+            <a href="{{ url_for('main.index') }}" class="btn btn--ghost">
+              ← Back to Home
+            </a>
+          </div>
+        </div>
+        {% endif %}
+
+      </div>{# /.layout-main #}
+
+      {% include 'partials/sidebar.html' %}
+
+    </div>{# /.layout-with-sidebar #}
+  </div>{# /.container #}
+</section>
+
+{% endblock %}

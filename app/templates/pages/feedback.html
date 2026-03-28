@@ -1,0 +1,530 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback - {{ site_name }}{% endblock %}
+
+{% block meta_description %}Share your feedback with {{ site_name }}. Rate your experience and tell us how we can improve.{% endblock %}
+
+{% block content %}
+<!-- Feedback Page Hero -->
+<section class="page-hero">
+    <div class="container">
+        <div class="page-hero__content">
+            <h1 class="page-hero__title">We Value Your Feedback</h1>
+            <p class="page-hero__subtitle">
+                Your opinion matters! Help us improve by sharing your thoughts and rating your experience.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Feedback Form Section -->
+<section class="feedback-section">
+    <div class="container">
+        <div class="feedback-wrapper">
+            <div class="card">
+                <div class="feedback-intro">
+                    <h2 class="card__title">Share Your Thoughts</h2>
+                    <p class="card__text">
+                        Whether it's praise, suggestions, or constructive criticism, we want to hear from you.
+                        Your feedback helps us create a better experience for everyone.
+                    </p>
+                </div>
+
+                <!-- Flash Messages -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert--{{ category }}">
+                                <span class="alert__message">{{ message }}</span>
+                                <button type="button" class="alert__close" aria-label="Close">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST" action="{{ url_for('main.feedback') }}" class="feedback-form" data-validate>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="name" class="form-label">
+                                Your Name <span class="required">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="name"
+                                name="name"
+                                class="form-control"
+                                placeholder="John Doe"
+                                value="{{ form_data.name or '' }}"
+                                required
+                                maxlength="100"
+                            >
+                            <span class="form-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email" class="form-label">
+                                Email Address <span class="required">*</span>
+                            </label>
+                            <input
+                                type="email"
+                                id="email"
+                                name="email"
+                                class="form-control"
+                                placeholder="john@example.com"
+                                value="{{ form_data.email or '' }}"
+                                required
+                            >
+                            <span class="form-error"></span>
+                        </div>
+                    </div>
+
+                    <!-- Rating Section -->
+                    <div class="form-group">
+                        <label class="form-label">
+                            How would you rate your experience? <span class="required">*</span>
+                        </label>
+                        <div class="rating-input">
+                            <input type="radio" id="rating-5" name="rating" value="5" {{ 'checked' if form_data.rating == '5' else '' }} required>
+                            <label for="rating-5" class="rating-star" title="Excellent">
+                                <i class="fas fa-star"></i>
+                                <span class="rating-text">Excellent</span>
+                            </label>
+
+                            <input type="radio" id="rating-4" name="rating" value="4" {{ 'checked' if form_data.rating == '4' else '' }}>
+                            <label for="rating-4" class="rating-star" title="Good">
+                                <i class="fas fa-star"></i>
+                                <span class="rating-text">Good</span>
+                            </label>
+
+                            <input type="radio" id="rating-3" name="rating" value="3" {{ 'checked' if form_data.rating == '3' else '' }}>
+                            <label for="rating-3" class="rating-star" title="Average">
+                                <i class="fas fa-star"></i>
+                                <span class="rating-text">Average</span>
+                            </label>
+
+                            <input type="radio" id="rating-2" name="rating" value="2" {{ 'checked' if form_data.rating == '2' else '' }}>
+                            <label for="rating-2" class="rating-star" title="Poor">
+                                <i class="fas fa-star"></i>
+                                <span class="rating-text">Poor</span>
+                            </label>
+
+                            <input type="radio" id="rating-1" name="rating" value="1" {{ 'checked' if form_data.rating == '1' else '' }}>
+                            <label for="rating-1" class="rating-star" title="Very Poor">
+                                <i class="fas fa-star"></i>
+                                <span class="rating-text">Very Poor</span>
+                            </label>
+                        </div>
+                        <span class="form-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="message" class="form-label">
+                            Your Feedback <span class="required">*</span>
+                        </label>
+                        <textarea
+                            id="message"
+                            name="message"
+                            class="form-control"
+                            rows="8"
+                            placeholder="Tell us about your experience. What did you like? What could be improved?"
+                            required
+                            maxlength="2000"
+                        >{{ form_data.message or '' }}</textarea>
+                        <span class="form-error"></span>
+                        <span class="form-help">Maximum 2000 characters</span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn--primary btn--lg">
+                            <i class="fas fa-paper-plane"></i>
+                            Submit Feedback
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Feedback Stats -->
+            <div class="feedback-stats">
+                <div class="card">
+                    <h3 class="card__title">Why Your Feedback Matters</h3>
+                    <div class="feedback-stats__list">
+                        <div class="feedback-stat">
+                            <div class="feedback-stat__icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div class="feedback-stat__content">
+                                <h4>Improve Our Content</h4>
+                                <p>Your suggestions help us create better, more relevant content.</p>
+                            </div>
+                        </div>
+
+                        <div class="feedback-stat">
+                            <div class="feedback-stat__icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="feedback-stat__content">
+                                <h4>Build Community</h4>
+                                <p>We listen to our readers and value your input.</p>
+                            </div>
+                        </div>
+
+                        <div class="feedback-stat">
+                            <div class="feedback-stat__icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="feedback-stat__content">
+                                <h4>Drive Innovation</h4>
+                                <p>Your ideas inspire new features and improvements.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card feedback-contact">
+                    <h3 class="card__title">Other Ways to Reach Us</h3>
+                    <p class="feedback-contact__text">
+                        Have a specific question or need immediate assistance?
+                    </p>
+                    <div class="feedback-contact__actions">
+                        <a href="{{ url_for('main.contact') }}" class="btn btn--outline">
+                            <i class="fas fa-envelope"></i>
+                            Contact Form
+                        </a>
+                        <a href="mailto:{{ config.ADMIN_EMAIL }}" class="btn btn--outline">
+                            <i class="fas fa-at"></i>
+                            Email Us
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials-section">
+    <div class="container">
+        <h2 class="section-title">What Others Are Saying</h2>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <div class="testimonial-card__rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-card__text">
+                    "Great content and very responsive to feedback. I've learned so much from this blog!"
+                </p>
+                <div class="testimonial-card__author">
+                    <strong>Sarah M.</strong>
+                    <span>Regular Reader</span>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-card__rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-card__text">
+                    "The team really listens to their audience. My suggestion was implemented within a week!"
+                </p>
+                <div class="testimonial-card__author">
+                    <strong>James T.</strong>
+                    <span>Community Member</span>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-card__rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+                <p class="testimonial-card__text">
+                    "Professional, informative, and always improving. This is my go-to blog for industry news."
+                </p>
+                <div class="testimonial-card__author">
+                    <strong>Emily R.</strong>
+                    <span>Subscriber</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.feedback-section {
+    padding: 4rem 0;
+}
+
+.feedback-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+@media (min-width: 992px) {
+    .feedback-wrapper {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+.feedback-wrapper .card {
+    padding: 2.5rem;
+}
+
+.feedback-intro {
+    margin-bottom: 2rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Rating Input */
+.rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.rating-input input[type="radio"] {
+    display: none;
+}
+
+.rating-star {
+    cursor: pointer;
+    font-size: 2rem;
+    color: #d1d5db;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.rating-star .rating-text {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-align: center;
+}
+
+.rating-star:hover,
+.rating-star:hover ~ .rating-star {
+    color: #fbbf24;
+    transform: scale(1.1);
+}
+
+.rating-input input[type="radio"]:checked ~ label {
+    color: #fbbf24;
+}
+
+.rating-input input[type="radio"]:checked ~ label .rating-text {
+    color: #111827;
+    font-weight: 600;
+}
+
+/* Feedback Stats */
+.feedback-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.feedback-stats__list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.feedback-stat {
+    display: flex;
+    gap: 1rem;
+}
+
+.feedback-stat__icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eff6ff;
+    color: #FF7043;
+    border-radius: 12px;
+    font-size: 1.25rem;
+}
+
+.feedback-stat__content h4 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+.feedback-stat__content p {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.feedback-contact__text {
+    margin-bottom: 1.5rem;
+    color: #6b7280;
+}
+
+.feedback-contact__actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Testimonials Section */
+.testimonials-section {
+    padding: 4rem 0;
+    background-color: #f9fafb;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 3rem;
+}
+
+.testimonials-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .testimonials-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.testimonial-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.testimonial-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-card__rating {
+    display: flex;
+    gap: 0.25rem;
+    margin-bottom: 1rem;
+    color: #fbbf24;
+    font-size: 1rem;
+}
+
+.testimonial-card__text {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: #4b5563;
+    margin-bottom: 1.5rem;
+    font-style: italic;
+}
+
+.testimonial-card__author {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.testimonial-card__author strong {
+    font-size: 0.9375rem;
+    color: #111827;
+    font-weight: 600;
+}
+
+.testimonial-card__author span {
+    font-size: 0.8125rem;
+    color: #6b7280;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767px) {
+    .rating-star {
+        font-size: 1.5rem;
+    }
+
+    .rating-star .rating-text {
+        font-size: 0.625rem;
+    }
+
+    .feedback-wrapper .card {
+        padding: 1.5rem;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Rating interaction
+    const ratingInputs = document.querySelectorAll('.rating-input input[type="radio"]');
+    const ratingLabels = document.querySelectorAll('.rating-star');
+
+    ratingLabels.forEach((label, index) => {
+        label.addEventListener('mouseenter', function() {
+            // Highlight stars on hover
+            for (let i = ratingLabels.length - 1; i >= ratingLabels.length - 1 - index; i--) {
+                ratingLabels[i].style.color = '#fbbf24';
+            }
+        });
+
+        label.addEventListener('mouseleave', function() {
+            // Reset to checked state
+            const checkedInput = document.querySelector('.rating-input input[type="radio"]:checked');
+            if (checkedInput) {
+                const checkedIndex = Array.from(ratingInputs).indexOf(checkedInput);
+                ratingLabels.forEach((lbl, idx) => {
+                    if (idx >= ratingLabels.length - 1 - checkedIndex) {
+                        lbl.style.color = '#fbbf24';
+                    } else {
+                        lbl.style.color = '#d1d5db';
+                    }
+                });
+            } else {
+                ratingLabels.forEach(lbl => lbl.style.color = '#d1d5db');
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

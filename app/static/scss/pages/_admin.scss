@@ -1,0 +1,1576 @@
+// ============================================================================
+// ADMIN PANEL STYLES
+// ============================================================================
+
+.admin-body {
+  background-color: #f4f7f6;
+  display: flex;
+  flex-direction: row;
+  min-height: 100vh;
+  overflow-x: hidden;
+
+  [data-theme="dark"] & {
+    background-color: #121212;
+  }
+}
+
+// ─── Sidebar ──────────────────────────────────────────────────────────────
+
+.admin-sidebar {
+  width: 280px;
+  background-color: $black;
+  color: $white;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  transition: transform 0.3s ease;
+
+  @include max-md {
+    position: fixed;
+    transform: translateX(-100%);
+    &.admin-sidebar--open {
+      transform: translateX(0);
+    }
+  }
+
+  &__brand {
+    padding: $spacing-6;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba($white, 0.1);
+  }
+
+  &__brand-link {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    text-decoration: none;
+    color: $white;
+    font-weight: $font-weight-bold;
+    font-size: $font-size-lg;
+  }
+
+  &__brand-icon {
+    color: $primary;
+    font-size: 1.5rem;
+  }
+
+  &__brand-badge {
+    font-size: $font-size-xs;
+    background-color: rgba($primary, 0.2);
+    color: $primary;
+    padding: 2px 8px;
+    border-radius: $border-radius-full;
+    text-transform: uppercase;
+    font-weight: $font-weight-bold;
+  }
+
+  &__user {
+    padding: $spacing-6;
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+    background-color: rgba($white, 0.03);
+  }
+
+  &__user-avatar {
+    border-radius: $border-radius-full;
+    border: 2px solid rgba($primary, 0.5);
+  }
+
+  &__user-info {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  &__user-name {
+    font-weight: $font-weight-semibold;
+    color: $white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__user-role {
+    font-size: $font-size-xs;
+    color: rgba($white, 0.5);
+  }
+
+  &__nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: $spacing-4 0;
+    @include custom-scrollbar(4px, transparent, rgba($white, 0.1));
+  }
+
+  &__links {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  &__section-label {
+    padding: $spacing-6 $spacing-6 $spacing-2;
+    font-size: $font-size-xs;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba($white, 0.3);
+    font-weight: $font-weight-bold;
+  }
+
+  &__link {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+    padding: $spacing-3 $spacing-6;
+    color: rgba($white, 0.7);
+    text-decoration: none;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-medium;
+    transition: all $transition-fast;
+
+    svg {
+      opacity: 0.6;
+      transition: all $transition-fast;
+    }
+
+    &:hover {
+      color: $white;
+      background-color: rgba($white, 0.05);
+      svg { opacity: 1; }
+    }
+
+    &--active {
+      color: $primary !important;
+      background-color: rgba($primary, 0.08);
+      border-right: 3px solid $primary;
+      svg {
+        color: $primary;
+        opacity: 1;
+      }
+    }
+
+    &--logout {
+      margin-top: auto;
+      &:hover {
+        color: $danger;
+        background-color: rgba($danger, 0.05);
+      }
+    }
+  }
+
+  &__badge {
+    margin-left: auto;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-weight: $font-weight-bold;
+
+    &--draft {
+      background-color: rgba($white, 0.1);
+      color: rgba($white, 0.6);
+    }
+    &--pending {
+      background-color: $warning;
+      color: $black;
+    }
+    &--unread {
+      background-color: $primary;
+      color: $white;
+    }
+  }
+
+  &__footer {
+    padding: $spacing-4 $spacing-6;
+    border-top: 1px solid rgba($white, 0.05);
+    background-color: rgba($black, 0.5);
+  }
+
+  &__footer-text {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-xs;
+    color: rgba($white, 0.3);
+
+    svg { color: $success; }
+  }
+}
+
+// ─── Main Content Area ────────────────────────────────────────────────────
+
+.admin-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; // Prevent flex item from overflowing
+}
+
+.admin-topbar {
+  height: 64px;
+  background-color: $white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 $spacing-6;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+
+  [data-theme="dark"] & {
+    background-color: #1e1e1e;
+    border-bottom-color: rgba(255, 255, 255, 0.05);
+  }
+
+  &__left, &__right {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+  }
+
+  &__sidebar-toggle {
+    display: none;
+    @include max-md {
+      display: flex;
+    }
+    background: none;
+    border: none;
+    padding: $spacing-2;
+    color: $black;
+    cursor: pointer;
+
+    [data-theme="dark"] & { color: $white; }
+  }
+
+  &__breadcrumb {
+    @include max-sm { display: none; }
+  }
+
+  &__breadcrumb-list {
+    display: flex;
+    list-style: none;
+    gap: $spacing-2;
+    font-size: $font-size-sm;
+    color: $gray-500;
+  }
+
+  &__breadcrumb-link {
+    text-decoration: none;
+    color: inherit;
+    &:hover { color: $primary; }
+  }
+
+  &__user-menu {
+    position: relative;
+  }
+
+  &__user-btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: $spacing-1 $spacing-2;
+    border-radius: $border-radius;
+    transition: background-color $transition-fast;
+
+    &:hover { background-color: $gray-50; }
+    [data-theme="dark"] &:hover { background-color: rgba(255, 255, 255, 0.05); }
+  }
+
+  &__user-avatar {
+    border-radius: $border-radius-full;
+  }
+
+  &__user-name {
+    font-weight: $font-weight-medium;
+    font-size: $font-size-sm;
+    color: $black;
+    [data-theme="dark"] & { color: $white; }
+  }
+
+  &__user-dropdown {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 200px;
+    background-color: $white;
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-lg;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    padding: $spacing-2;
+    margin-top: $spacing-2;
+    list-style: none;
+    display: none;
+
+    &--active { display: block; }
+
+    [data-theme="dark"] & {
+      background-color: #252526;
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  &__dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    padding: $spacing-2 $spacing-3;
+    text-decoration: none;
+    color: $gray-700;
+    font-size: $font-size-sm;
+    border-radius: $border-radius;
+    transition: all $transition-fast;
+
+    &:hover {
+      background-color: $gray-50;
+      color: $primary;
+    }
+
+    [data-theme="dark"] &:hover {
+      background-color: rgba(255, 255, 255, 0.05);
+      color: $white;
+    }
+
+    &--danger:hover {
+      background-color: rgba($danger, 0.05);
+      color: $danger;
+    }
+  }
+
+  &__dropdown-divider {
+    height: 1px;
+    background-color: rgba(0, 0, 0, 0.05);
+    margin: $spacing-1 0;
+    [data-theme="dark"] & { background-color: rgba(255, 255, 255, 0.05); }
+  }
+}
+
+.admin-content {
+  padding: $spacing-8;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+
+  @include max-md { padding: $spacing-4; }
+}
+
+.admin-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: $spacing-8;
+  gap: $spacing-4;
+
+  @include max-sm { flex-direction: column; }
+
+  &__title {
+    margin-bottom: $spacing-1;
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+  }
+
+  &__title-icon {
+    font-size: 1.5rem;
+  }
+
+  &__subtitle {
+    color: $gray-500;
+    font-size: $font-size-base;
+  }
+}
+
+// ─── Dashboard Stats ───────────────────────────────────────────────────────
+
+.admin-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: $spacing-6;
+  margin-bottom: $spacing-8;
+}
+
+.admin-stat-card {
+  background-color: $white;
+  padding: $spacing-6;
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-sm;
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  position: relative;
+  transition: transform $transition-base, box-shadow $transition-base;
+  border: 1px solid transparent;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-md;
+    border-color: rgba($primary, 0.1);
+  }
+
+  [data-theme="dark"] & {
+    background-color: #1e1e1e;
+    box-shadow: none;
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+
+  &__icon {
+    width: 48px;
+    height: 48px;
+    border-radius: $border-radius-lg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    &--blue { background-color: rgba($info, 0.1); color: $info; }
+    &--green { background-color: rgba($success, 0.1); color: $success; }
+    &--orange { background-color: rgba($primary, 0.1); color: $primary; }
+    &--purple { background-color: rgba($secondary, 0.1); color: $secondary; }
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__label {
+    font-size: $font-size-xs;
+    text-transform: uppercase;
+    font-weight: $font-weight-bold;
+    color: $gray-500;
+    letter-spacing: 0.05em;
+  }
+
+  &__value {
+    font-size: $font-size-2xl;
+    font-weight: $font-weight-bold;
+    color: $black;
+    [data-theme="dark"] & { color: $white; }
+  }
+
+  &__link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+}
+
+// ─── Panels & Tables ───────────────────────────────────────────────────────
+
+.admin-panel {
+  background-color: $white;
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  margin-bottom: $spacing-8;
+
+  [data-theme="dark"] & {
+    background-color: #1e1e1e;
+    border-color: rgba(255, 255, 255, 0.05);
+    box-shadow: none;
+  }
+
+  &__header {
+    padding: $spacing-4 $spacing-6;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.01);
+
+    [data-theme="dark"] & {
+      border-bottom-color: rgba(255, 255, 255, 0.05);
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+  }
+
+  &__title {
+    font-size: $font-size-lg;
+    margin: 0;
+  }
+
+  &__body {
+    padding: $spacing-6;
+  }
+}
+
+.admin-table-wrap {
+  overflow-x: auto;
+  margin: -$spacing-6; // Flush with panel body
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: $font-size-sm;
+
+  th {
+    padding: $spacing-4 $spacing-6;
+    background-color: rgba(0, 0, 0, 0.02);
+    font-weight: $font-weight-bold;
+    color: $gray-600;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+    [data-theme="dark"] & {
+      background-color: rgba(255, 255, 255, 0.02);
+      color: $gray-400;
+      border-bottom-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  td {
+    padding: $spacing-4 $spacing-6;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    vertical-align: middle;
+
+    [data-theme="dark"] & {
+      border-bottom-color: rgba(255, 255, 255, 0.02);
+    }
+  }
+
+  tr:last-child td { border-bottom: none; }
+  
+  tr:hover td {
+    background-color: rgba(0, 0, 0, 0.01);
+    [data-theme="dark"] & { background-color: rgba(255, 255, 255, 0.01); }
+  }
+}
+
+// ─── Footer ────────────────────────────────────────────────────────────────
+
+.admin-footer {
+  padding: $spacing-8 $spacing-6;
+  margin-top: auto;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: $font-size-sm;
+  color: $gray-500;
+
+  @include max-sm { flex-direction: column; gap: $spacing-4; text-align: center; }
+
+  [data-theme="dark"] & { border-top-color: rgba(255, 255, 255, 0.05); }
+
+  &__site-link {
+    text-decoration: none;
+    color: $primary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+// ─── Overlays ──────────────────────────────────────────────────────────────
+
+.admin-sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 95;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+
+  &--active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+// ─── Admin Forms ──────────────────────────────────────────────────────────
+
+.admin-post-form {
+  &__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-8;
+
+    @include lg {
+      grid-template-columns: 1fr 320px;
+    }
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-6;
+  }
+
+  &__sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-6;
+  }
+}
+
+.admin-form-card {
+  background-color: $white;
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+
+  [data-theme="dark"] & {
+    background-color: #1e1e1e;
+    border-color: rgba(255, 255, 255, 0.05);
+    box-shadow: none;
+  }
+
+  &__header {
+    padding: $spacing-4 $spacing-6;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.01);
+
+    [data-theme="dark"] & {
+      border-bottom-color: rgba(255, 255, 255, 0.05);
+      background-color: rgba(255, 255, 255, 0.02);
+    }
+
+    &--primary {
+      background-color: rgba($primary, 0.05);
+      border-bottom-color: rgba($primary, 0.1);
+      [data-theme="dark"] & { background-color: rgba($primary, 0.1); }
+    }
+
+    &--danger {
+      background-color: rgba($danger, 0.05);
+      border-bottom-color: rgba($danger, 0.1);
+      [data-theme="dark"] & { background-color: rgba($danger, 0.1); }
+    }
+
+    &--collapsible {
+      cursor: pointer;
+      user-select: none;
+      &:hover { background-color: rgba(0, 0, 0, 0.03); }
+      [data-theme="dark"] &:hover { background-color: rgba(255, 255, 255, 0.03); }
+    }
+  }
+
+  &__title {
+    font-size: $font-size-base;
+    margin: 0;
+    font-weight: $font-weight-bold;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+
+    svg { color: $primary; }
+  }
+
+  &__chevron {
+    transition: transform $transition-fast;
+    [aria-expanded="true"] & { transform: rotate(180deg); }
+  }
+
+  &__body {
+    padding: $spacing-6;
+    &--collapsible {
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      [data-theme="dark"] & { border-top-color: rgba(255, 255, 255, 0.05); }
+    }
+  }
+}
+
+.admin-form-field {
+  margin-bottom: $spacing-6;
+  &:last-child { margin-bottom: 0; }
+
+  &--compact { margin-bottom: $spacing-4; }
+}
+
+.admin-form-label {
+  display: block;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $gray-700;
+  margin-bottom: $spacing-2;
+
+  [data-theme="dark"] & { color: $gray-300; }
+
+  &--lg { font-size: $font-size-lg; }
+  &--sm { font-size: $font-size-xs; text-transform: uppercase; letter-spacing: 0.05em; }
+}
+
+.admin-form-label-hint {
+  font-weight: $font-weight-normal;
+  color: $gray-400;
+  margin-left: $spacing-2;
+  font-size: $font-size-xs;
+}
+
+.admin-form-required {
+  color: $danger;
+  margin-left: 2px;
+}
+
+.admin-form-input, 
+.admin-form-textarea, 
+.admin-form-select {
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  font-size: $font-size-base;
+  font-family: $font-primary;
+  color: $black;
+  background-color: $white;
+  border: 1px solid $gray-300;
+  border-radius: $border-radius;
+  transition: all $transition-fast;
+
+  [data-theme="dark"] & {
+    background-color: #2b2b2b;
+    border-color: #444;
+    color: $white;
+  }
+
+  &::placeholder {
+    color: $gray-400;
+    [data-theme="dark"] & { color: $gray-600; }
+  }
+
+  &:hover {
+    border-color: $gray-400;
+    [data-theme="dark"] & { border-color: #555; }
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+    background-color: $white;
+
+    [data-theme="dark"] & {
+      border-color: $primary;
+      box-shadow: 0 0 0 3px rgba($primary, 0.2);
+      background-color: #2b2b2b;
+    }
+  }
+
+  &--xl { font-size: $font-size-xl; font-weight: $font-weight-bold; padding: $spacing-4 $spacing-5; }
+  &--sm { font-size: $font-size-sm; padding: $spacing-2 $spacing-3; }
+  &--xs { font-size: $font-size-xs; padding: $spacing-2 $spacing-3; }
+  &--code { font-family: $font-mono; font-size: $font-size-sm; }
+}
+
+.admin-form-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.admin-form-help {
+  display: flex;
+  justify-content: space-between;
+  margin-top: $spacing-1;
+  font-size: $font-size-xs;
+  color: $gray-500;
+}
+
+.admin-form-help-text {
+  &--warning { color: $warning; font-weight: $font-weight-medium; }
+}
+
+.admin-form-char-count {
+  font-variant-numeric: tabular-nums;
+}
+
+.admin-form-grid {
+  display: grid;
+  gap: $spacing-4;
+  &--2 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+}
+
+// ─── Toggles & Checkboxes ───────────────────────────────────────────────────
+
+.admin-form-toggle-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-3 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  &:last-of-type { border-bottom: none; }
+  [data-theme="dark"] & { border-bottom-color: rgba(255, 255, 255, 0.05); }
+}
+
+.admin-form-toggle-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-form-toggle-label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  color: $black;
+  [data-theme="dark"] & { color: $white; }
+  svg { color: $primary; }
+}
+
+.admin-form-toggle-desc {
+  font-size: $font-size-xs;
+  color: $gray-500;
+}
+
+.admin-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+
+  &__input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+    &:checked + .admin-toggle__track {
+      background-color: $primary;
+      &:before { transform: translateX(20px); }
+    }
+  }
+
+  &__track {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: $gray-300;
+    transition: $transition-fast;
+    border-radius: 24px;
+    [data-theme="dark"] & { background-color: #444; }
+
+    &:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: $white;
+      transition: $transition-fast;
+      border-radius: 50%;
+      box-shadow: $shadow-sm;
+    }
+  }
+}
+
+.admin-form-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  font-size: $font-size-sm;
+  cursor: pointer;
+  margin-top: $spacing-2;
+
+  &--sm { font-size: $font-size-xs; }
+}
+
+.admin-form-checkbox-text {
+  &--danger { color: $danger; font-weight: $font-weight-medium; }
+}
+
+// ─── Slug Preview ───────────────────────────────────────────────────────────
+
+.admin-slug-preview {
+  display: flex;
+  align-items: center;
+  background-color: $gray-50;
+  padding: $spacing-2 $spacing-3;
+  border-radius: $border-radius;
+  font-size: $font-size-xs;
+  border: 1px solid $gray-200;
+  margin-top: $spacing-1;
+
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.02);
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+
+  &__base { color: $gray-500; }
+  &__slug { color: $primary; font-weight: $font-weight-semibold; }
+}
+
+// ─── Status Dots ────────────────────────────────────────────────────────────
+
+.admin-status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: $spacing-1;
+
+  &--published { background-color: $success; box-shadow: 0 0 8px rgba($success, 0.4); }
+  &--draft { background-color: $gray-400; }
+}
+
+// ─── Image Upload & Preview ─────────────────────────────────────────────────
+
+.admin-image-preview {
+  margin-bottom: $spacing-4;
+  border: 1px solid $gray-200;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  background-color: $gray-50;
+
+  [data-theme="dark"] & {
+    background-color: #121212;
+    border-color: rgba(255, 255, 255, 0.05);
+  }
+
+  &__img {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
+    object-fit: cover;
+    display: block;
+  }
+
+  &__actions {
+    padding: $spacing-3;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+  }
+
+  &__view-btn {
+    font-size: $font-size-xs;
+    color: $primary;
+    text-decoration: none;
+    font-weight: $font-weight-medium;
+    &:hover { text-decoration: underline; }
+  }
+}
+
+.admin-image-upload {
+  position: relative;
+  margin-bottom: $spacing-6;
+
+  &__label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: $spacing-8;
+    border: 2px dashed $gray-300;
+    border-radius: $border-radius-lg;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    [data-theme="dark"] & { border-color: #444; }
+
+    &:hover {
+      border-color: $primary;
+      background-color: rgba($primary, 0.02);
+    }
+  }
+
+  &__icon { font-size: 2rem; margin-bottom: $spacing-2; }
+
+  &__text { text-align: center; }
+
+  &__primary {
+    display: block;
+    font-weight: $font-weight-bold;
+    color: $black;
+    [data-theme="dark"] & { color: $white; }
+  }
+
+  &__secondary {
+    display: block;
+    font-size: $font-size-xs;
+    color: $gray-500;
+  }
+
+  &__input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  &__new-preview {
+    margin-top: $spacing-4;
+    border-radius: $border-radius-lg;
+    overflow: hidden;
+    img { width: 100%; height: auto; display: block; }
+  }
+}
+
+// ─── Editor Specific ────────────────────────────────────────────────────────
+
+.admin-form-card--editor {
+  .admin-form-card__body { padding: 0; }
+}
+
+.admin-editor-mode-toggle {
+  display: flex;
+  background-color: $gray-100;
+  padding: 2px;
+  border-radius: $border-radius;
+  [data-theme="dark"] & { background-color: #2b2b2b; }
+}
+
+.admin-editor-mode-btn {
+  padding: 4px 12px;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: $border-radius;
+  color: $gray-500;
+  transition: all $transition-fast;
+
+  &--active {
+    background-color: $white;
+    color: $primary;
+    box-shadow: $shadow-sm;
+    [data-theme="dark"] & { background-color: #444; color: $white; }
+  }
+
+  &:hover:not(&--active) {
+    color: $black;
+    [data-theme="dark"] & { color: $white; }
+  }
+}
+
+.admin-editor-footer {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  padding: $spacing-3 $spacing-6;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: $font-size-xs;
+  color: $gray-500;
+  [data-theme="dark"] & { border-top-color: rgba(255, 255, 255, 0.05); }
+}
+
+.admin-editor-image-btn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: $spacing-2;
+  background: none;
+  border: none;
+  color: $primary;
+  font-weight: $font-weight-bold;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: $border-radius;
+  transition: background-color $transition-fast;
+  &:hover { background-color: rgba($primary, 0.05); }
+}
+
+.admin-quill-editor {
+  min-height: 400px;
+  border: none !important;
+  .ql-toolbar {
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+    background-color: rgba(0, 0, 0, 0.01);
+    [data-theme="dark"] & {
+      border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+      background-color: rgba(255, 255, 255, 0.02);
+      .ql-stroke { stroke: #ccc !important; }
+      .ql-fill { fill: #ccc !important; }
+      .ql-picker { color: #ccc !important; }
+    }
+  }
+  .ql-container {
+    font-family: $font-primary !important;
+    font-size: $font-size-base !important;
+    [data-theme="dark"] & { color: #ddd; }
+  }
+}
+
+// ─── SEO Preview ────────────────────────────────────────────────────────────
+
+.admin-seo-preview {
+  margin-bottom: $spacing-6;
+  &__label { font-size: $font-size-xs; font-weight: $font-weight-bold; color: $gray-400; margin-bottom: $spacing-2; }
+  &__box {
+    background-color: $white;
+    padding: $spacing-4;
+    border: 1px solid $gray-200;
+    border-radius: $border-radius-lg;
+    max-width: 600px;
+    [data-theme="dark"] & { background-color: #121212; border-color: #333; }
+  }
+  &__title { color: #1a0dab; font-size: 1.25rem; margin-bottom: 4px; [data-theme="dark"] & { color: #8ab4f8; } }
+  &__url { color: #006621; font-size: 14px; margin-bottom: 4px; [data-theme="dark"] & { color: #34a853; } }
+  &__desc { color: #545454; font-size: 14px; line-height: 1.4; [data-theme="dark"] & { color: #bdc1c6; } }
+}
+
+// ─── Form Submission ────────────────────────────────────────────────────────
+
+.admin-form-submit-group {
+  margin-top: $spacing-6;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-3;
+}
+
+.btn--full { width: 100%; }
+
+.admin-form-danger-text {
+  font-size: $font-size-sm;
+  color: $gray-600;
+  margin-bottom: $spacing-4;
+  [data-theme="dark"] & { color: $gray-400; }
+  strong { color: $danger; }
+}
+
+// ─── Categories Grid ────────────────────────────────────────────────────────
+
+.admin-categories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: $spacing-6;
+  margin-bottom: $spacing-8;
+}
+
+.admin-category-card {
+  background-color: $white;
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform $transition-base, box-shadow $transition-base;
+
+  [data-theme="dark"] & {
+    background-color: #1e1e1e;
+    border-color: rgba(255, 255, 255, 0.05);
+    box-shadow: none;
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-md;
+    border-color: rgba($primary, 0.2);
+  }
+
+  &__color-bar {
+    height: 6px;
+    width: 100%;
+  }
+
+  &__body {
+    padding: $spacing-6;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-4;
+    flex: 1;
+  }
+
+  &__icon-wrap {
+    width: 48px;
+    height: 48px;
+    border-radius: $border-radius-lg;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-1;
+  }
+
+  &__name {
+    margin: 0;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $black;
+    [data-theme="dark"] & { color: $white; }
+  }
+
+  &__slug {
+    font-size: $font-size-xs;
+    color: $gray-500;
+    font-family: $font-mono;
+  }
+
+  &__desc {
+    font-size: $font-size-sm;
+    color: $gray-600;
+    margin: $spacing-2 0 0;
+    line-height: 1.5;
+    [data-theme="dark"] & { color: $gray-400; }
+  }
+
+  &__stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $spacing-4;
+    padding-top: $spacing-4;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    [data-theme="dark"] & { border-top-color: rgba(255, 255, 255, 0.05); }
+  }
+
+  &__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__stat-value {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+  }
+
+  &__color-badge {
+    padding: 2px 8px;
+    border-radius: $border-radius-full;
+    font-size: 10px;
+    font-weight: $font-weight-bold;
+    font-family: $font-mono;
+    text-transform: uppercase;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: $shadow-sm;
+  }
+
+  &__stat-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    font-weight: $font-weight-bold;
+    color: $gray-400;
+    letter-spacing: 0.05em;
+  }
+
+  &__actions {
+    padding: $spacing-3 $spacing-6;
+    background-color: rgba(0, 0, 0, 0.01);
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: $spacing-2;
+
+    [data-theme="dark"] & {
+      background-color: rgba(255, 255, 255, 0.02);
+      border-top-color: rgba(255, 255, 255, 0.05);
+    }
+  }
+
+  &__action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-2;
+    padding: $spacing-2;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-semibold;
+    color: $gray-600;
+    text-decoration: none;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: $border-radius;
+    transition: all $transition-fast;
+
+    [data-theme="dark"] & { color: $gray-400; }
+
+    &:hover {
+      background-color: rgba($primary, 0.05);
+      color: $primary;
+    }
+
+    &--delete:hover {
+      background-color: rgba($danger, 0.05);
+      color: $danger;
+    }
+  }
+}
+
+// ─── Media Library ──────────────────────────────────────────────────────────
+
+.admin-media-stats {
+  display: flex;
+  gap: $spacing-8;
+  margin-bottom: $spacing-6;
+}
+
+.admin-media-stat {
+  display: flex;
+  flex-direction: column;
+  &__value { font-size: $font-size-xl; font-weight: $font-weight-bold; color: $black; [data-theme="dark"] & { color: $white; } }
+  &__label { font-size: $font-size-xs; color: $gray-500; text-transform: uppercase; letter-spacing: 0.05em; }
+}
+
+.admin-media-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-6;
+  gap: $spacing-4;
+
+  &__search { flex: 1; max-width: 400px; }
+  &__view-toggle { display: flex; background-color: $gray-100; padding: 2px; border-radius: $border-radius; [data-theme="dark"] & { background-color: #2b2b2b; } }
+}
+
+.admin-media-view-btn {
+  padding: $spacing-2;
+  background: none;
+  border: none;
+  border-radius: $border-radius-sm;
+  color: $gray-500;
+  cursor: pointer;
+  transition: all $transition-fast;
+
+  &--active {
+    background-color: $white;
+    color: $primary;
+    box-shadow: $shadow-sm;
+    [data-theme="dark"] & { background-color: #444; color: $white; }
+  }
+}
+
+.admin-media-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: $spacing-6;
+
+  &--list {
+    grid-template-columns: 1fr;
+    .admin-media-item {
+      flex-direction: row;
+      align-items: center;
+      padding: $spacing-3 $spacing-4;
+      &__preview { width: 64px; height: 48px; margin-bottom: 0; }
+      &__info { flex: 1; flex-direction: row; align-items: center; gap: $spacing-4; }
+      &__actions { padding: 0; border: none; background: none; }
+      &__overlay { display: none; }
+    }
+  }
+}
+
+.admin-media-item {
+  background-color: $white;
+  border-radius: $border-radius-lg;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all $transition-base;
+
+  [data-theme="dark"] & { background-color: #1e1e1e; border-color: rgba(255, 255, 255, 0.05); }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: $shadow-md;
+    border-color: rgba($primary, 0.2);
+  }
+
+  &__preview {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    background-color: $gray-50;
+    overflow: hidden;
+    [data-theme="dark"] & { background-color: #121212; }
+  }
+
+  &__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  &__error {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    background-color: $gray-100;
+    [data-theme="dark"] & { background-color: #1e1e1e; }
+  }
+
+  &__overlay {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity $transition-fast;
+    .admin-media-item:hover & { opacity: 1; }
+  }
+
+  &__overlay-actions {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+    padding: $spacing-4;
+  }
+
+  &__overlay-btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    background-color: $white;
+    color: $black;
+    padding: $spacing-2 $spacing-4;
+    border-radius: $border-radius;
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: all $transition-fast;
+
+    &:hover { background-color: $primary; color: $white; }
+  }
+
+  &__info {
+    padding: $spacing-3 $spacing-4;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  &__name {
+    font-size: $font-size-xs;
+    font-weight: $font-weight-bold;
+    color: $black;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    [data-theme="dark"] & { color: $white; }
+  }
+
+  &__size { font-size: 10px; color: $gray-500; }
+
+  &__actions {
+    padding: $spacing-2 $spacing-4;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    background-color: rgba(0, 0, 0, 0.01);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    [data-theme="dark"] & { border-top-color: rgba(255, 255, 255, 0.05); background-color: rgba(255, 255, 255, 0.02); }
+  }
+
+  &__copy-btn {
+    background: none;
+    border: none;
+    font-size: 10px;
+    font-weight: $font-weight-bold;
+    color: $primary;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 4px;
+    border-radius: $border-radius-sm;
+    &:hover { background-color: rgba($primary, 0.05); }
+  }
+
+  &__delete-btn {
+    background: none;
+    border: none;
+    color: $gray-400;
+    cursor: pointer;
+    padding: 2px;
+    transition: color $transition-fast;
+    &:hover { color: $danger; }
+  }
+}
+
+// ─── Upload Dropzone ────────────────────────────────────────────────────────
+
+.admin-upload-dropzone {
+  border: 2px dashed $gray-300;
+  border-radius: $border-radius-xl;
+  padding: $spacing-12 $spacing-6;
+  text-align: center;
+  cursor: pointer;
+  transition: all $transition-fast;
+  background-color: $gray-50;
+
+  [data-theme="dark"] & { background-color: rgba(255, 255, 255, 0.02); border-color: #444; }
+
+  &:hover, &--dragover {
+    border-color: $primary;
+    background-color: rgba($primary, 0.03);
+  }
+
+  &__icon { color: $gray-400; margin-bottom: $spacing-4; }
+  &__primary { display: block; font-weight: $font-weight-bold; color: $black; font-size: $font-size-lg; [data-theme="dark"] & { color: $white; } }
+  &__browse { color: $primary; text-decoration: underline; }
+  &__secondary { display: block; font-size: $font-size-sm; color: $gray-500; margin-top: $spacing-2; }
+
+  &__preview {
+    display: flex;
+    align-items: center;
+    gap: $spacing-4;
+    text-align: left;
+    background-color: $white;
+    padding: $spacing-4;
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-sm;
+    [data-theme="dark"] & { background-color: #2b2b2b; }
+
+    img { width: 80px; height: 60px; object-fit: cover; border-radius: $border-radius; }
+  }
+
+  &__preview-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  &__preview-name { font-weight: $font-weight-bold; font-size: $font-size-sm; color: $black; [data-theme="dark"] & { color: $white; } }
+  &__preview-size { font-size: $font-size-xs; color: $gray-500; }
+  &__preview-clear { background: none; border: none; font-size: 1.5rem; color: $gray-400; cursor: pointer; &:hover { color: $danger; } }
+}
+
+.admin-upload-tips {
+  margin-top: $spacing-8;
+  &__title { font-size: $font-size-sm; font-weight: $font-weight-bold; margin-bottom: $spacing-3; }
+  &__list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: 1fr 1fr; gap: $spacing-2 $spacing-6;
+    li { font-size: $font-size-xs; color: $gray-500; display: flex; align-items: flex-start; gap: $spacing-2;
+      &:before { content: '•'; color: $primary; font-weight: bold; }
+    }
+    @include max-sm { grid-template-columns: 1fr; }
+  }
+}
+
+// ─── Toast Notification ─────────────────────────────────────────────────────
+
+.admin-toast {
+  position: fixed;
+  bottom: $spacing-8;
+  right: $spacing-8;
+  background-color: $black;
+  color: $white;
+  padding: $spacing-3 $spacing-6;
+  border-radius: $border-radius-full;
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  box-shadow: $shadow-lg;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all $transition-base;
+  z-index: 2000;
+
+  &--visible { transform: translateY(0); opacity: 1; }
+
+  svg { color: $success; }
+}
+
+

@@ -1,0 +1,863 @@
+{% extends 'admin/base.html' %}
+
+{% block admin_title %}{% if mode == 'edit' %}Edit: {{ post.title | truncate(40, True, '…') }}{% else %}New Post{% endif %}{% endblock %}
+
+{% block admin_breadcrumb %}
+<li class="admin-topbar__breadcrumb-sep" aria-hidden="true">›</li>
+<li class="admin-topbar__breadcrumb-item">
+  <a href="{{ url_for('admin.posts') }}" class="admin-topbar__breadcrumb-link">Posts</a>
+</li>
+<li class="admin-topbar__breadcrumb-sep" aria-hidden="true">›</li>
+<li class="admin-topbar__breadcrumb-item admin-topbar__breadcrumb-item--current" aria-current="page">
+  {% if mode == 'edit' %}Edit Post{% else %}New Post{% endif %}
+</li>
+{% endblock %}
+
+{% block admin_extra_head %}
+<!-- Quill Rich Text Editor -->
+<link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet" />
+{% endblock %}
+
+{% block admin_content %}
+
+{% set fd = form_data %}
+
+<div class="admin-page-header">
+  <div class="admin-page-header__left">
+    <h1 class="admin-page-header__title">
+      <span class="admin-page-header__title-icon">{% if mode == 'edit' %}✏️{% else %}📝{% endif %}</span>
+      {% if mode == 'edit' %}Edit Post{% else %}Create New Post{% endif %}
+    </h1>
+    {% if mode == 'edit' %}
+    <p class="admin-page-header__subtitle">
+      Last updated: <strong>{{ post.updated_at | human_datetime }}</strong>
+      {% if post.is_published %}
+      · <a href="{{ url_for('blog.detail', slug=post.slug) }}" target="_blank" rel="noopener"
+           class="admin-page-header__view-link">View live post ↗</a>
+      {% endif %}
+    </p>
+    {% endif %}
+  </div>
+  <div class="admin-page-header__actions">
+    <a href="{{ url_for('admin.posts') }}" class="btn btn--ghost">
+      ← Back to Posts
+    </a>
+    {% if mode == 'edit' and post.is_published %}
+    <a href="{{ url_for('blog.detail', slug=post.slug) }}" target="_blank" rel="noopener"
+       class="btn btn--outline">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        <polyline points="15 3 21 3 21 9"/>
+        <line x1="10" y1="14" x2="21" y2="3"/>
+      </svg>
+      View Post
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<form
+  action="{% if mode == 'edit' %}{{ url_for('admin.post_edit', post_id=post.id) }}{% else %}{{ url_for('admin.post_create') }}{% endif %}"
+  method="post"
+  enctype="multipart/form-data"
+  class="admin-post-form"
+  id="post-form"
+  novalidate
+  aria-label="Post editor form"
+>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+  <div class="admin-post-form__layout">
+
+    <!-- ── Main Editor Column ───────────────────────────────────────────── -->
+    <div class="admin-post-form__main">
+
+      <!-- Title -->
+      <div class="admin-form-card">
+        <div class="admin-form-card__header">
+          <h2 class="admin-form-card__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 7V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3"/>
+              <path d="M9 22h6"/>
+              <path d="M12 22V5"/>
+            </svg>
+            Post Title <span class="admin-form-required" aria-label="required">*</span>
+          </h2>
+        </div>
+        <div class="admin-form-card__body">
+          <div class="admin-form-field">
+            <input
+              type="text"
+              id="post-title"
+              name="title"
+              class="admin-form-input admin-form-input--xl"
+              value="{{ fd.get('title', post.title if mode == 'edit' else '') }}"
+              required
+              maxlength="200"
+              placeholder="Enter a compelling post title…"
+              aria-required="true"
+            />
+            <div class="admin-form-help">
+              <span class="admin-form-char-count">
+                <span id="title-char-count">{{ (fd.get('title', post.title if mode == 'edit' else '') | length) }}</span>/200
+              </span>
+              <span class="admin-form-help-text">A clear, engaging title improves SEO and click-through rates.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Excerpt -->
+      <div class="admin-form-card">
+        <div class="admin-form-card__header">
+          <h2 class="admin-form-card__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+            Excerpt / Summary
+          </h2>
+          <span class="admin-form-label-hint">auto-generated if left blank</span>
+        </div>
+        <div class="admin-form-card__body">
+          <div class="admin-form-field">
+            <textarea
+              id="post-excerpt"
+              name="excerpt"
+              class="admin-form-textarea"
+              rows="3"
+              maxlength="500"
+              placeholder="Write a short summary that appears in post cards and SEO descriptions (max 500 characters)…"
+            >{{ fd.get('excerpt', post.excerpt if mode == 'edit' else '') }}</textarea>
+            <div class="admin-form-help">
+              <span class="admin-form-char-count">
+                <span id="excerpt-char-count">{{ (fd.get('excerpt', post.excerpt if mode == 'edit' else '') or '' | length) }}</span>/500
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content Editor -->
+      <div class="admin-form-card admin-form-card--editor">
+        <div class="admin-form-card__header">
+          <h2 class="admin-form-card__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 20h9"/>
+              <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+            </svg>
+            Post Content <span class="admin-form-required" aria-label="required">*</span>
+          </h2>
+          <div class="admin-editor-mode-toggle" role="group" aria-label="Editor mode">
+            <button type="button" class="admin-editor-mode-btn admin-editor-mode-btn--active"
+                    id="visual-mode-btn" data-mode="visual">
+              Visual
+            </button>
+            <button type="button" class="admin-editor-mode-btn"
+                    id="html-mode-btn" data-mode="html">
+              HTML
+            </button>
+          </div>
+        </div>
+
+        <!-- Quill Editor Container -->
+        <div id="quill-editor" class="admin-quill-editor">{{ fd.get('content', post.content if mode == 'edit' else '') | safe }}</div>
+
+        <!-- Raw HTML Textarea (hidden by default) -->
+        <textarea
+          id="post-content-raw"
+          name="content"
+          class="admin-form-textarea admin-form-textarea--code"
+          rows="20"
+          required
+          style="display: none"
+          placeholder="Enter post HTML content here…"
+          aria-label="Raw HTML content"
+        >{{ fd.get('content', post.content if mode == 'edit' else '') }}</textarea>
+
+        <div class="admin-editor-footer">
+          <span class="admin-editor-word-count" id="word-count">0 words</span>
+          <span class="admin-editor-read-time" id="read-time">~ 0 min read</span>
+          <button type="button" class="admin-editor-image-btn" id="editor-image-btn"
+                  title="Browse uploaded images">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            Image Library
+          </button>
+        </div>
+      </div>
+
+      <!-- Embedded Media -->
+      <div class="admin-form-card">
+        <div class="admin-form-card__header">
+          <h2 class="admin-form-card__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="23 7 16 12 23 17 23 7"/>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+            Embed Media (YouTube / Widgets)
+          </h2>
+          <span class="admin-form-label-hint">Optional</span>
+        </div>
+        <div class="admin-form-card__body">
+          <div class="admin-form-field">
+            <label for="embed-code" class="admin-form-label">Embed Code (iframe / script)</label>
+            <textarea
+              id="embed-code"
+              name="embed_code"
+              class="admin-form-textarea admin-form-textarea--code admin-form-textarea--sm"
+              rows="5"
+              placeholder='Paste an iframe embed code here. Example:&#10;&lt;iframe width="560" height="315" src="https://www.youtube.com/embed/VIDEO_ID" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;'
+            >{{ fd.get('embed_code', post.embed_code if mode == 'edit' else '') }}</textarea>
+          </div>
+          <div class="admin-form-field">
+            <label for="embed-caption" class="admin-form-label">Embed Caption</label>
+            <input
+              type="text"
+              id="embed-caption"
+              name="embed_caption"
+              class="admin-form-input"
+              maxlength="255"
+              placeholder="Optional caption displayed below the embed…"
+              value="{{ fd.get('embed_caption', post.embed_caption if mode == 'edit' else '') }}"
+            />
+          </div>
+          <!-- Embed Preview -->
+          <div class="admin-embed-preview" id="embed-preview" style="display:none">
+            <div class="admin-embed-preview__header">
+              <span class="admin-embed-preview__label">Preview</span>
+              <button type="button" class="admin-embed-preview__clear" id="embed-preview-clear">Clear</button>
+            </div>
+            <div class="admin-embed-preview__content" id="embed-preview-content"></div>
+          </div>
+          <button type="button" class="btn btn--outline btn--sm admin-form-preview-btn" id="embed-preview-btn">
+            Preview Embed
+          </button>
+        </div>
+      </div>
+
+      <!-- Affiliate CTA Block -->
+      <div class="admin-form-card">
+        <div class="admin-form-card__header">
+          <h2 class="admin-form-card__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+            </svg>
+            Affiliate CTA Block
+          </h2>
+          <span class="admin-form-label-hint">Optional — appears at bottom of post</span>
+        </div>
+        <div class="admin-form-card__body">
+          <div class="admin-form-grid admin-form-grid--2">
+            <div class="admin-form-field">
+              <label for="affiliate-cta-url" class="admin-form-label">Affiliate URL</label>
+              <input
+                type="url"
+                id="affiliate-cta-url"
+                name="affiliate_cta_url"
+                class="admin-form-input"
+                placeholder="https://affiliate-link.com/product?ref=certivo"
+                value="{{ fd.get('affiliate_cta_url', post.affiliate_cta_url if mode == 'edit' else '') }}"
+              />
+            </div>
+            <div class="admin-form-field">
+              <label for="affiliate-cta-label" class="admin-form-label">Button Label</label>
+              <input
+                type="text"
+                id="affiliate-cta-label"
+                name="affiliate_cta_label"
+                class="admin-form-input"
+                maxlength="120"
+                placeholder="Get This Deal, Try for Free, Learn More…"
+                value="{{ fd.get('affiliate_cta_label', post.affiliate_cta_label if mode == 'edit' else '') }}"
+              />
+            </div>
+          </div>
+          <div class="admin-form-field">
+            <label for="affiliate-cta" class="admin-form-label">CTA Description / Recommendation Text</label>
+            <textarea
+              id="affiliate-cta"
+              name="affiliate_cta"
+              class="admin-form-textarea admin-form-textarea--sm"
+              rows="4"
+              placeholder="Write a short recommendation or description for this affiliate product/service. HTML is supported."
+            >{{ fd.get('affiliate_cta', post.affiliate_cta if mode == 'edit' else '') }}</textarea>
+            <span class="admin-form-help-text">Supports basic HTML for bold, links, etc.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- ── /Main Editor Column ─────────────────────────────────────────── -->
+
+    <!-- ── Sidebar Options Column ─────────────────────────────────────── -->
+    <div class="admin-post-form__sidebar">
+
+      <!-- Publish Panel -->
+      <div class="admin-form-card admin-form-card--publish">
+        <div class="admin-form-card__header admin-form-card__header--primary">
+          <h2 class="admin-form-card__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            Publish Settings
+          </h2>
+        </div>
+        <div class="admin-form-card__body">
+
+          <!-- Status -->
+          <div class="admin-form-toggle-row">
+            <div class="admin-form-toggle-info">
+              <span class="admin-form-toggle-label">Status</span>
+              <span class="admin-form-toggle-desc admin-post-status-label"
+                    id="publish-status-label">
+                {% if mode == 'edit' and post.is_published %}
+                  <span class="admin-status-dot admin-status-dot--published"></span> Published
+                {% else %}
+                  <span class="admin-status-dot admin-status-dot--draft"></span> Draft
+                {% endif %}
+              </span>
+            </div>
+            <label class="admin-toggle">
+              <input
+                type="checkbox"
+                name="is_published"
+                id="is-published"
+                class="admin-toggle__input"
+                {% if mode == 'edit' and post.is_published %}checked{% elif fd.get('is_published') %}checked{% endif %}
+              />
+              <span class="admin-toggle__track" aria-hidden="true"></span>
+            </label>
+          </div>
+
+          <!-- Scheduled Publish Date -->
+          <div class="admin-form-field admin-form-field--compact">
+            <label for="published_at" class="admin-form-label admin-form-label--sm">
+              Publish Date (Schedule)
+            </label>
+            <input
+              type="datetime-local"
+              id="published_at"
+              name="published_at"
+              class="admin-form-input admin-form-input--sm"
+              value="{{ fd.get('published_at', post.published_at.strftime('%Y-%m-%dT%H:%M') if mode == 'edit' and post.published_at else '') }}"
+            />
+            <span class="admin-form-help-text">Leave blank to publish immediately, or set a future date.</span>
+          </div>
+
+          <!-- Featured -->
+          <div class="admin-form-toggle-row">
+            <div class="admin-form-toggle-info">
+              <span class="admin-form-toggle-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                Featured Post
+              </span>
+              <span class="admin-form-toggle-desc">Show in hero section</span>
+            </div>
+            <label class="admin-toggle">
+              <input
+                type="checkbox"
+                name="is_featured"
+                id="is-featured"
+                class="admin-toggle__input"
+                {% if mode == 'edit' and post.is_featured %}checked{% elif fd.get('is_featured') %}checked{% endif %}
+              />
+              <span class="admin-toggle__track" aria-hidden="true"></span>
+            </label>
+          </div>
+
+          <!-- Slug -->
+          <div class="admin-form-field admin-form-field--compact">
+            <label for="post-slug-preview" class="admin-form-label admin-form-label--sm">
+              URL Slug
+            </label>
+            <div class="admin-slug-preview">
+              <span class="admin-slug-preview__base">/blog/</span>
+              <span class="admin-slug-preview__slug" id="post-slug-preview">
+                {{ post.slug if mode == 'edit' else '' }}
+              </span>
+            </div>
+            {% if mode == 'edit' %}
+            <label class="admin-form-checkbox-label admin-form-checkbox-label--sm">
+              <input type="checkbox" name="regenerate_slug" id="regenerate-slug"
+                     class="admin-form-checkbox" />
+              <span class="admin-form-checkbox-text">Regenerate slug from title</span>
+            </label>
+            <p class="admin-form-help-text admin-form-help-text--warning">
+              ⚠️ Changing the slug will break existing links to this post.
+            </p>
+            {% endif %}
+          </div>
+
+          <!-- Submit Buttons -->
+          <div class="admin-form-submit-group">
+            <button type="submit" class="btn btn--primary btn--full admin-form-submit" id="save-btn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+              </svg>
+              {% if mode == 'edit' %}Save Changes{% else %}Create Post{% endif %}
+            </button>
+            {% if mode == 'edit' %}
+            <a href="{{ url_for('admin.posts') }}" class="btn btn--ghost btn--full">
+              Discard Changes
+            </a>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Featured Image -->
+      <div class="admin-form-card">
+        <div class="admin-form-card__header">
+          <h2 class="admin-form-card__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
+            </svg>
+            Featured Image
+          </h2>
+        </div>
+        <div class="admin-form-card__body">
+
+          <!-- Current image preview -->
+          {% if mode == 'edit' and post.featured_image %}
+          <div class="admin-image-preview" id="current-image-preview">
+            <img
+              src="{{ post.featured_image_url }}"
+              alt="{{ post.featured_image_alt or post.title }}"
+              class="admin-image-preview__img"
+              width="300"
+              height="180"
+            />
+            <div class="admin-image-preview__actions">
+              <a href="{{ post.featured_image_url }}" target="_blank" rel="noopener"
+                 class="admin-image-preview__view-btn">View Full Size ↗</a>
+              <label class="admin-form-checkbox-label">
+                <input type="checkbox" name="remove_image" id="remove-image"
+                       class="admin-form-checkbox" />
+                <span class="admin-form-checkbox-text admin-form-checkbox-text--danger">
+                  Remove current image
+                </span>
+              </label>
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Upload new image -->
+          <div class="admin-image-upload" id="image-upload-zone">
+            <label for="featured-image" class="admin-image-upload__label">
+              <div class="admin-image-upload__icon" aria-hidden="true">🖼️</div>
+              <div class="admin-image-upload__text">
+                <span class="admin-image-upload__primary">
+                  {% if mode == 'edit' and post.featured_image %}Replace Image{% else %}Upload Image{% endif %}
+                </span>
+                <span class="admin-image-upload__secondary">PNG, JPG, WebP, GIF — max 16MB</span>
+              </div>
+            </label>
+            <input
+              type="file"
+              id="featured-image"
+              name="featured_image"
+              class="admin-image-upload__input"
+              accept=".png,.jpg,.jpeg,.gif,.webp,.svg"
+            />
+            <div class="admin-image-upload__new-preview" id="new-image-preview" style="display:none">
+              <img id="new-image-preview-img" src="" alt="New featured image preview" />
+            </div>
+          </div>
+
+          <!-- Alt text -->
+          <div class="admin-form-field admin-form-field--compact">
+            <label for="featured-image-alt" class="admin-form-label admin-form-label--sm">
+              Image Alt Text
+            </label>
+            <input
+              type="text"
+              id="featured-image-alt"
+              name="featured_image_alt"
+              class="admin-form-input admin-form-input--sm"
+              maxlength="200"
+              placeholder="Describe the image for accessibility and SEO"
+              value="{{ fd.get('featured_image_alt', post.featured_image_alt if mode == 'edit' else '') }}"
+            />
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Category -->
+      <div class="admin-form-card">
+        <div class="admin-form-card__header">
+          <h2 class="admin-form-card__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+            </svg>
+            Category
+          </h2>
+        </div>
+        <div class="admin-form-card__body">
+          <div class="admin-form-field">
+            <label for="post-category" class="admin-form-label admin-form-label--sm">Select Category</label>
+            <select
+              id="post-category"
+              name="category_id"
+              class="admin-form-select"
+            >
+              <option value="">— Uncategorized —</option>
+              {% for cat in categories %}
+              <option
+                value="{{ cat.id }}"
+                {% if mode == 'edit' and post.category_id == cat.id %}selected
+                {% elif fd.get('category_id') | string == cat.id | string %}selected
+                {% endif %}
+                data-color="{{ cat.color }}"
+              >
+                {{ cat.name }}
+              </option>
+              {% endfor %}
+            </select>
+            <a href="{{ url_for('admin.categories') }}" class="admin-form-help-link">
+              + Manage Categories
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEO Settings -->
+      <div class="admin-form-card">
+        <div class="admin-form-card__header admin-form-card__header--collapsible"
+             id="seo-header" role="button" tabindex="0"
+             aria-expanded="false" aria-controls="seo-body">
+          <h2 class="admin-form-card__title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            SEO Settings
+          </h2>
+          <svg class="admin-form-card__chevron" width="14" height="14" viewBox="0 0 12 12" aria-hidden="true">
+            <path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="admin-form-card__body admin-form-card__body--collapsible" id="seo-body" style="display:none">
+
+          <!-- SEO Preview -->
+          <div class="admin-seo-preview" id="seo-preview">
+            <div class="admin-seo-preview__label">Google Preview</div>
+            <div class="admin-seo-preview__box">
+              <div class="admin-seo-preview__title" id="seo-preview-title">
+                {{ (fd.get('meta_title', post.meta_title if mode == 'edit' else '') or (fd.get('title', post.title if mode == 'edit' else ''))) | truncate(60, True, '…') }}
+              </div>
+              <div class="admin-seo-preview__url">
+                {{ site_url }}/blog/<span id="seo-preview-slug">{{ post.slug if mode == 'edit' else '' }}</span>
+              </div>
+              <div class="admin-seo-preview__desc" id="seo-preview-desc">
+                {{ (fd.get('meta_description', post.meta_description if mode == 'edit' else '') or '') | truncate(160, True, '…') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-form-field">
+            <label for="meta-title" class="admin-form-label admin-form-label--sm">
+              Meta Title
+              <span class="admin-form-label-hint">(uses post title if blank)</span>
+            </label>
+            <input
+              type="text"
+              id="meta-title"
+              name="meta_title"
+              class="admin-form-input admin-form-input--sm"
+              maxlength="200"
+              placeholder="SEO page title (50–60 characters ideal)"
+              value="{{ fd.get('meta_title', post.meta_title if mode == 'edit' else '') }}"
+            />
+            <span class="admin-form-char-count">
+              <span id="meta-title-count">{{ (fd.get('meta_title', post.meta_title if mode == 'edit' else '') or '' | length) }}</span>/200
+            </span>
+          </div>
+
+          <div class="admin-form-field">
+            <label for="meta-description" class="admin-form-label admin-form-label--sm">Meta Description</label>
+            <textarea
+              id="meta-description"
+              name="meta_description"
+              class="admin-form-textarea admin-form-textarea--xs"
+              rows="3"
+              maxlength="320"
+              placeholder="Page description for search engines (150–160 characters ideal)…"
+            >{{ fd.get('meta_description', post.meta_description if mode == 'edit' else '') }}</textarea>
+            <span class="admin-form-char-count">
+              <span id="meta-desc-count">{{ (fd.get('meta_description', post.meta_description if mode == 'edit' else '') or '' | length) }}</span>/320
+            </span>
+          </div>
+
+          <div class="admin-form-field">
+            <label for="meta-keywords" class="admin-form-label admin-form-label--sm">Keywords / Tags</label>
+            <input
+              type="text"
+              id="meta-keywords"
+              name="meta_keywords"
+              class="admin-form-input admin-form-input--sm"
+              maxlength="255"
+              placeholder="python, flask, web development, tutorial"
+              value="{{ fd.get('meta_keywords', post.meta_keywords if mode == 'edit' else '') }}"
+            />
+            <span class="admin-form-help-text">Separate with commas. Used for tags and structured data.</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Danger Zone (edit mode only) -->
+      {% if mode == 'edit' %}
+      <div class="admin-form-card admin-form-card--danger">
+        <div class="admin-form-card__header admin-form-card__header--danger">
+        <h2 class="admin-form-card__title">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Danger Zone
+        </h2>
+      </div>
+      <div class="admin-form-card__body">
+        <p class="admin-form-danger-text">
+          Permanently delete this post and all its comments. This action <strong>cannot be undone</strong>.
+        </p>
+        <form action="{{ url_for('admin.post_delete', post_id=post.id) }}"
+              method="post" id="delete-post-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+          <button type="button"
+                  class="btn btn--danger btn--full"
+                  id="delete-post-btn"
+                  data-post-title="{{ post.title | truncate(40, True, '…') }}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+              <path d="M10 11v6"/>
+              <path d="M14 11v6"/>
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            </svg>
+            Delete This Post
+          </button>
+        </form>
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+  <!-- ── /Sidebar Options Column ─────────────────────────────────────── -->
+
+</div>
+<!-- ── /Form Layout ─────────────────────────────────────────────────── -->
+
+</form>
+
+<!-- Image Library Modal -->
+<div class="admin-modal" id="image-library-modal" role="dialog" aria-modal="true"
+     aria-labelledby="image-library-title" aria-hidden="true" hidden><div class="admin-modal__backdrop" id="image-library-backdrop"></div>
+<div class="admin-modal__box admin-modal__box--lg">
+  <div class="admin-modal__header">
+    <h2 class="admin-modal__title" id="image-library-title">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+        <circle cx="8.5" cy="8.5" r="1.5"/>
+        <polyline points="21 15 16 10 5 21"/>
+      </svg>
+      Image Library
+    </h2>
+    <button class="admin-modal__close" id="image-library-close" aria-label="Close modal">
+      &times;
+    </button>
+  </div>
+  <div class="admin-modal__body">
+    <p class="admin-modal__help">Click an image to copy its URL, then paste it in the editor.</p>
+    <div class="admin-image-library" id="image-library-grid">
+      <div class="admin-image-library__loading">Loading images…</div>
+    </div>
+  </div>
+  <div class="admin-modal__footer">
+    <a href="{{ url_for('admin.media') }}" target="_blank" rel="noopener"
+       class="btn btn--outline btn--sm">
+      Upload New Image ↗
+    </a>
+    <button class="btn btn--ghost btn--sm" id="image-library-cancel">Cancel</button>
+  </div>
+</div>
+</div>
+
+{% endblock %}
+
+{% block admin_extra_scripts %}
+<!-- Quill JS -->
+<script src="https://cdn.quilljs.com/1.3.7/quill.min.js"></script>
+<script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+<script>
+// Delete confirmation
+(function () {
+  const deleteBtn  = document.getElementById('delete-post-btn');
+  const deleteForm = document.getElementById('delete-post-form');
+  if (!deleteBtn || !deleteForm) return;
+
+  deleteBtn.addEventListener('click', function () {
+    const title = this.dataset.postTitle || 'this post';
+    if (confirm(`Are you sure you want to permanently delete "${title}"?\n\nThis will also delete all comments. This action cannot be undone.`)) {
+      deleteForm.submit();
+    }
+  });
+}());
+
+// SEO live preview
+(function () {
+  const titleInput   = document.getElementById('post-title');
+  const metaTitle    = document.getElementById('meta-title');
+  const metaDesc     = document.getElementById('meta-description');
+  const previewTitle = document.getElementById('seo-preview-title');
+  const previewSlug  = document.getElementById('seo-preview-slug');
+  const previewDesc  = document.getElementById('seo-preview-desc');
+  const slugDisplay  = document.getElementById('post-slug-preview');
+  const titleCount   = document.getElementById('title-char-count');
+  const metaTitleCount = document.getElementById('meta-title-count');
+  const metaDescCount  = document.getElementById('meta-desc-count');
+  const publishToggle  = document.getElementById('is-published');
+  const statusLabel    = document.getElementById('publish-status-label');
+
+  function slugify(str) {
+    return str.toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  function truncate(str, len) {
+    return str.length > len ? str.substring(0, len) + '…' : str;
+  }
+
+  if (titleInput) {
+    titleInput.addEventListener('input', function () {
+      const val = this.value;
+      if (titleCount) titleCount.textContent = val.length;
+      if (slugDisplay && !document.getElementById('regenerate-slug')?.checked) {
+        slugDisplay.textContent = slugify(val) || '…';
+      }
+      if (previewTitle) {
+        previewTitle.textContent = truncate(metaTitle?.value || val || 'Post Title', 60);
+      }
+      if (previewSlug) {
+        previewSlug.textContent = slugify(val);
+      }
+    });
+  }
+
+  if (metaTitle) {
+    metaTitle.addEventListener('input', function () {
+      if (metaTitleCount) metaTitleCount.textContent = this.value.length;
+      if (previewTitle) {
+        previewTitle.textContent = truncate(this.value || titleInput?.value || 'Post Title', 60);
+      }
+    });
+  }
+
+  if (metaDesc) {
+    metaDesc.addEventListener('input', function () {
+      if (metaDescCount) metaDescCount.textContent = this.value.length;
+      if (previewDesc) {
+        previewDesc.textContent = truncate(this.value || 'No description set.', 160);
+      }
+    });
+  }
+
+  if (publishToggle && statusLabel) {
+    publishToggle.addEventListener('change', function () {
+      statusLabel.innerHTML = this.checked
+        ? '<span class="admin-status-dot admin-status-dot--published"></span> Published'
+        : '<span class="admin-status-dot admin-status-dot--draft"></span> Draft';
+    });
+  }
+
+  // Collapsible SEO panel
+  const seoHeader = document.getElementById('seo-header');
+  const seoBody   = document.getElementById('seo-body');
+  if (seoHeader && seoBody) {
+    seoHeader.addEventListener('click', function () {
+      const expanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', String(!expanded));
+      seoBody.style.display = expanded ? 'none' : 'block';
+    });
+    seoHeader.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); }
+    });
+  }
+
+  // Featured image preview
+  const imageInput   = document.getElementById('featured-image');
+  const previewWrap  = document.getElementById('new-image-preview');
+  const previewImg   = document.getElementById('new-image-preview-img');
+  if (imageInput && previewWrap && previewImg) {
+    imageInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (file) {
+        previewImg.src = URL.createObjectURL(file);
+        previewWrap.style.display = 'block';
+      } else {
+        previewWrap.style.display = 'none';
+      }
+    });
+  }
+
+  // Embed preview
+  const embedCode    = document.getElementById('embed-code');
+  const previewBtn   = document.getElementById('embed-preview-btn');
+  const previewBox   = document.getElementById('embed-preview');
+  const previewContent = document.getElementById('embed-preview-content');
+  const clearBtn     = document.getElementById('embed-preview-clear');
+  if (previewBtn && previewBox && previewContent && embedCode) {
+    previewBtn.addEventListener('click', function () {
+      const code = embedCode.value.trim();
+      if (code) {
+        previewContent.innerHTML = code;
+        previewBox.style.display = 'block';
+      }
+    });
+  }
+  if (clearBtn && previewBox && previewContent && embedCode) {
+    clearBtn.addEventListener('click', function () {
+      previewContent.innerHTML = '';
+      previewBox.style.display = 'none';
+      embedCode.value = '';
+    });
+  }
+}());
+</script>
+{% endblock %}

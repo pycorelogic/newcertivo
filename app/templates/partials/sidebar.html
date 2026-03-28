@@ -1,0 +1,234 @@
+<aside class="sidebar" role="complementary" aria-label="Sidebar">
+
+  {# ── About / Author Widget ─────────────────────────────────────────────── #}
+  <div class="sidebar__widget sidebar__widget--about">
+    <div class="sidebar__widget-header">
+      <h3 class="sidebar__widget-title">About the Blog</h3>
+    </div>
+    <div class="sidebar__about-body">
+      <div class="sidebar__about-avatar">
+        <img
+          src="https://ui-avatars.com/api/?name=Certivo+Blog&background=ff7043&color=fff&size=80&bold=true"
+          alt="Certivo Blog"
+          width="80"
+          height="80"
+          loading="lazy"
+        />
+      </div>
+      <p class="sidebar__about-text">
+        Welcome to <strong>{{ site_name }}</strong> — your go-to source for
+        insights on technology, business, lifestyle, and travel. We publish
+        thoughtful, well-researched articles every week.
+      </p>
+      <a href="{{ url_for('main.about') }}" class="sidebar__about-link btn btn--outline btn--sm">
+        Learn More →
+      </a>
+    </div>
+  </div>
+
+  {# ── Search Widget ─────────────────────────────────────────────────────── #}
+  <div class="sidebar__widget sidebar__widget--search">
+    <div class="sidebar__widget-header">
+      <h3 class="sidebar__widget-title">Search</h3>
+    </div>
+    <form action="{{ url_for('blog.search') }}" method="get" class="sidebar__search-form" role="search">
+      <div class="sidebar__search-group">
+        <label for="sidebar-search" class="sr-only">Search articles</label>
+        <input
+          type="search"
+          name="q"
+          id="sidebar-search"
+          class="sidebar__search-input"
+          placeholder="Search articles…"
+          value="{{ request.args.get('q', '') }}"
+          aria-label="Search articles"
+        />
+        <button type="submit" class="sidebar__search-btn" aria-label="Submit search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2.5"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  {# ── Categories Widget ─────────────────────────────────────────────────── #}
+  {% if nav_categories %}
+  <div class="sidebar__widget sidebar__widget--categories">
+    <div class="sidebar__widget-header">
+      <h3 class="sidebar__widget-title">Categories</h3>
+    </div>
+    <ul class="sidebar__categories-list" role="list">
+      {% for cat in nav_categories %}
+      <li class="sidebar__category-item">
+        <a href="{{ url_for('blog.category', slug=cat.slug) }}"
+           class="sidebar__category-link"
+           style="--cat-color: {{ cat.color }}">
+          <span class="sidebar__category-dot" style="background: {{ cat.color }}"></span>
+          <span class="sidebar__category-name">{{ cat.name }}</span>
+          <span class="sidebar__category-count"
+                style="background: {{ cat.color }}20; color: {{ cat.color }}">
+            {{ cat.published_post_count }}
+          </span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {# ── Recent Posts Widget ───────────────────────────────────────────────── #}
+  {% if sidebar_recent_posts %}
+  <div class="sidebar__widget sidebar__widget--recent">
+    <div class="sidebar__widget-header">
+      <h3 class="sidebar__widget-title">Recent Posts</h3>
+    </div>
+    <ul class="sidebar__posts-list" role="list">
+      {% for post in sidebar_recent_posts %}
+      <li class="sidebar__post-item">
+        <a href="{{ url_for('blog.detail', slug=post.slug) }}" class="sidebar__post-link">
+          {% if post.featured_image_url %}
+          <div class="sidebar__post-thumb">
+            <img
+              src="{{ post.featured_image_url }}"
+              alt="{{ post.featured_image_alt or post.title }}"
+              width="64"
+              height="64"
+              loading="lazy"
+              class="sidebar__post-img"
+            />
+          </div>
+          {% else %}
+          <div class="sidebar__post-thumb sidebar__post-thumb--placeholder">
+            <span class="sidebar__post-thumb-icon">📄</span>
+          </div>
+          {% endif %}
+          <div class="sidebar__post-info">
+            <h4 class="sidebar__post-title">{{ post.title | truncate(55, True, '…') }}</h4>
+            <time class="sidebar__post-date" datetime="{{ post.iso_date }}">
+              {{ post.short_date }}
+            </time>
+          </div>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {# ── Popular Posts Widget ──────────────────────────────────────────────── #}
+  {% if sidebar_popular_posts %}
+  <div class="sidebar__widget sidebar__widget--popular">
+    <div class="sidebar__widget-header">
+      <h3 class="sidebar__widget-title">
+        <span class="sidebar__widget-title-icon">🔥</span> Popular Posts
+      </h3>
+    </div>
+    <ol class="sidebar__popular-list" role="list">
+      {% for post in sidebar_popular_posts %}
+      <li class="sidebar__popular-item">
+        <span class="sidebar__popular-rank">{{ loop.index }}</span>
+        <div class="sidebar__popular-body">
+          <a href="{{ url_for('blog.detail', slug=post.slug) }}" class="sidebar__popular-title">
+            {{ post.title | truncate(60, True, '…') }}
+          </a>
+          <div class="sidebar__popular-meta">
+            <span class="sidebar__popular-views">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              {{ post.views | format_number }} views
+            </span>
+            <span class="sidebar__popular-time">{{ post.reading_time }} min read</span>
+          </div>
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+  {% endif %}
+
+  {# ── Affiliate / Sponsor Widget ────────────────────────────────────────── #}
+  {% if sidebar_affiliates %}
+  <div class="sidebar__widget sidebar__widget--affiliates">
+    <div class="sidebar__widget-header">
+      <h3 class="sidebar__widget-title">
+        <span class="sidebar__widget-title-icon">⭐</span> Recommended
+      </h3>
+    </div>
+    <div class="sidebar__affiliates-list">
+      {% for link in sidebar_affiliates %}
+      <div class="sidebar__affiliate-card">
+        {% if link.badge_text %}
+        <span class="sidebar__affiliate-badge">{{ link.badge_text }}</span>
+        {% endif %}
+        {% if link.image_url %}
+        <div class="sidebar__affiliate-img-wrap">
+          <img
+            src="{{ link.image_url }}"
+            alt="{{ link.title }}"
+            class="sidebar__affiliate-img"
+            width="260"
+            height="140"
+            loading="lazy"
+          />
+        </div>
+        {% endif %}
+        <div class="sidebar__affiliate-body">
+          <h4 class="sidebar__affiliate-title">{{ link.title }}</h4>
+          {% if link.description %}
+          <p class="sidebar__affiliate-desc">{{ link.description | truncate(80, True, '…') }}</p>
+          {% endif %}
+          <a href="{{ url_for('main.affiliate_click', link_id=link.id) }}"
+             class="sidebar__affiliate-btn btn btn--primary btn--sm"
+             target="_blank"
+             rel="noopener noreferrer sponsored">
+            {{ link.cta_text }}
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Newsletter / CTA Widget ───────────────────────────────────────────── #}
+  <div class="sidebar__widget sidebar__widget--newsletter">
+    <div class="sidebar__newsletter-inner">
+      <div class="sidebar__newsletter-icon">📬</div>
+      <h3 class="sidebar__newsletter-title">Stay in the Loop</h3>
+      <p class="sidebar__newsletter-text">
+        Get the latest articles delivered straight to your inbox. No spam, ever.
+      </p>
+      <form class="sidebar__newsletter-form" action="{{ url_for('main.contact') }}" method="get">
+        <input type="hidden" name="subject" value="Newsletter Subscription" />
+        <a href="{{ url_for('main.contact') }}" class="btn btn--primary btn--full">
+          Subscribe Now →
+        </a>
+      </form>
+    </div>
+  </div>
+
+  {# ── Feedback CTA Widget ───────────────────────────────────────────────── #}
+  <div class="sidebar__widget sidebar__widget--feedback">
+    <div class="sidebar__feedback-inner">
+      <span class="sidebar__feedback-emoji">💬</span>
+      <h4 class="sidebar__feedback-title">Share Your Feedback</h4>
+      <p class="sidebar__feedback-text">We'd love to hear what you think about our content!</p>
+      <a href="{{ url_for('main.feedback') }}" class="btn btn--outline btn--sm btn--full">
+        Leave Feedback
+      </a>
+    </div>
+  </div>
+
+</aside>

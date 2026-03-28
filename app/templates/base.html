@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+  {# ── SEO Meta Tags ─────────────────────────────────────────────────────── #}
+  <title>{% block title %}{{ page_title | default(site_name) }}{% endblock %} | {{ site_name }}</title>
+  <meta name="description" content="{% block meta_description %}{{ site_description }}{% endblock %}" />
+  <meta name="keywords" content="{% block meta_keywords %}blog, technology, lifestyle, business, travel{% endblock %}" />
+  <meta name="author" content="{% block meta_author %}{{ site_author }}{% endblock %}" />
+  <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}" />
+  <link rel="canonical" href="{% block canonical %}{{ site_url }}{{ request.path }}{% endblock %}" />
+
+  {# ── Open Graph ────────────────────────────────────────────────────────── #}
+  <meta property="og:type" content="{% block og_type %}website{% endblock %}" />
+  <meta property="og:title" content="{% block og_title %}{{ page_title | default(site_name) }}{% endblock %}" />
+  <meta property="og:description" content="{% block og_description %}{{ site_description }}{% endblock %}" />
+  <meta property="og:url" content="{{ site_url }}{{ request.path }}" />
+  <meta property="og:site_name" content="{{ site_name }}" />
+  <meta property="og:image" content="{% block og_image %}{{ site_url }}/static/img/og-default.png{% endblock %}" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  {# ── Twitter Card ──────────────────────────────────────────────────────── #}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:site" content="{{ site_twitter }}" />
+  <meta name="twitter:title" content="{% block twitter_title %}{{ page_title | default(site_name) }}{% endblock %}" />
+  <meta name="twitter:description" content="{% block twitter_description %}{{ site_description }}{% endblock %}" />
+  <meta name="twitter:image" content="{% block twitter_image %}{{ site_url }}/static/img/og-default.png{% endblock %}" />
+
+  {# ── Favicon ───────────────────────────────────────────────────────────── #}
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/favicon.svg') }}" />
+  <link rel="alternate icon" href="{{ url_for('static', filename='img/favicon.ico') }}" />
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}" />
+
+  {# ── Google Fonts ──────────────────────────────────────────────────────── #}
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet" />
+
+  {# ── Main CSS ──────────────────────────────────────────────────────────── #}
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}?v={{ now().timestamp() | int }}" />
+
+  {# ── Google Analytics ──────────────────────────────────────────────────── #}
+  {% if ga_tracking_id %}
+  <script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_tracking_id }}"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', '{{ ga_tracking_id }}');
+  </script>
+  {% endif %}
+
+  {# ── Google AdSense Head Script ────────────────────────────────────────── #}
+  {% if adsense_enabled and adsense_client_id %}
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={{ adsense_client_id }}"
+          crossorigin="anonymous"></script>
+  {% endif %}
+
+  {# ── JSON-LD Structured Data ───────────────────────────────────────────── #}
+  {% block jsonld %}{% endblock %}
+
+  {# ── Extra head content ────────────────────────────────────────────────── #}
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}">
+
+  {# ── Skip to main content (accessibility) ─────────────────────────────── #}
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  {# ── Navbar ────────────────────────────────────────────────────────────── #}
+  {% include 'partials/navbar.html' %}
+
+  {# ── Flash Messages ────────────────────────────────────────────────────── #}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container" role="alert" aria-live="polite" style="margin-top: 2rem;">
+      <div class="container">
+        {% for category, message in messages %}
+        <div class="alert alert--{{ category }} alert--dismissible" role="alert">
+          <span class="alert__icon">
+            {% if category == 'success' %}✅
+            {% elif category == 'danger' %}❌
+            {% elif category == 'warning' %}⚠️
+            {% elif category == 'info' %}ℹ️
+            {% else %}💬
+            {% endif %}
+          </span>
+          <span class="alert__message">{{ message }}</span>
+          <button class="alert__close" onclick="this.parentElement.remove()" aria-label="Dismiss">&times;</button>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  {# ── Main Content ──────────────────────────────────────────────────────── #}
+  <main id="main-content" class="main-content" tabindex="-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  {# ── Footer ────────────────────────────────────────────────────────────── #}
+  {% include 'partials/footer.html' %}
+
+  {# ── Back to Top Button ────────────────────────────────────────────────── #}
+  <button id="back-to-top" class="back-to-top" aria-label="Back to top" title="Back to top">
+    ↑
+  </button>
+
+  {# ── Main JavaScript ───────────────────────────────────────────────────── #}
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+  {# ── Extra scripts ─────────────────────────────────────────────────────── #}
+  {% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

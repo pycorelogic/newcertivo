@@ -1,0 +1,66 @@
+<article class="affiliate-card" aria-labelledby="affiliate-card-title-{{ link.id }}">
+
+  {# ── Badge ───────────────────────────────────────────────────────────────── #}
+  {% if link.badge_text %}
+  <div class="affiliate-card__badge">{{ link.badge_text }}</div>
+  {% endif %}
+
+  {# ── Image ───────────────────────────────────────────────────────────────── #}
+  <div class="affiliate-card__img-wrap">
+    {% if link.image_url %}
+    <a href="{{ url_for('main.affiliate_click', link_id=link.id) }}"
+       target="_blank"
+       rel="noopener noreferrer sponsored"
+       tabindex="-1"
+       aria-hidden="true">
+      <img
+        src="{{ link.image_url }}"
+        alt="{{ link.title }}"
+        class="affiliate-card__img"
+        width="300"
+        height="180"
+        loading="lazy"
+      />
+    </a>
+    {% else %}
+    <div class="affiliate-card__img-placeholder">
+      <span class="affiliate-card__placeholder-icon">🛍️</span>
+    </div>
+    {% endif %}
+  </div>
+
+  {# ── Body ────────────────────────────────────────────────────────────────── #}
+  <div class="affiliate-card__body">
+
+    <h3 class="affiliate-card__title" id="affiliate-card-title-{{ link.id }}">
+      {{ link.title }}
+    </h3>
+
+    {% if link.description %}
+    <p class="affiliate-card__desc">
+      {{ link.description | truncate(100, True, '…') }}
+    </p>
+    {% endif %}
+
+    <div class="affiliate-card__footer">
+      <a
+        href="{{ url_for('main.affiliate_click', link_id=link.id) }}"
+        class="affiliate-card__btn btn btn--primary"
+        target="_blank"
+        rel="noopener noreferrer sponsored"
+        aria-label="{{ link.cta_text }} — {{ link.title }}"
+      >
+        {{ link.cta_text }}
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="5" y1="12" x2="19" y2="12"/>
+          <polyline points="12 5 19 12 12 19"/>
+        </svg>
+      </a>
+      <span class="affiliate-card__disclosure">Sponsored</span>
+    </div>
+
+  </div>
+
+</article>

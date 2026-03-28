@@ -1,0 +1,429 @@
+// ============================================================================
+// AUTH & LOGIN PAGES (PREMIUM MATTE THEME)
+// ============================================================================
+
+.auth-page {
+  background-color: $gray-50;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+
+  [data-theme="dark"] & {
+    background-color: $black;
+  }
+
+  // Hide header/footer on auth page if needed, but base.html has them.
+  // We'll focus on making the card pop.
+  .main-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: $spacing-6;
+  }
+}
+
+.auth-wrapper {
+  width: 100%;
+  max-width: 480px;
+  position: relative;
+  z-index: 10;
+}
+
+.auth-card {
+  background-color: $white;
+  border: 1px solid $gray-200;
+  border-radius: $border-radius-2xl;
+  padding: $spacing-8;
+  box-shadow: $shadow-xl;
+  animation: authCardFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+
+  [data-theme="dark"] & {
+    background-color: $matte-dark-card;
+    border-color: $matte-dark-border;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  }
+
+  @include md {
+    padding: $spacing-10;
+  }
+
+  &__brand {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: $spacing-10;
+  }
+
+  &__brand-link {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    text-decoration: none;
+    transition: transform $transition-fast;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+
+  &__brand-icon {
+    width: 32px;
+    height: 32px;
+    background-color: $primary;
+    color: $white;
+    border-radius: $border-radius-lg;
+    @include flex-center;
+    font-weight: $font-weight-bold;
+    font-size: 1.25rem;
+  }
+
+  &__brand-name {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $black;
+    letter-spacing: -0.02em;
+
+    [data-theme="dark"] & {
+      color: $white;
+    }
+  }
+
+  &__badge {
+    font-size: 10px;
+    font-weight: $font-weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 4px 10px;
+    background-color: rgba($primary, 0.1);
+    color: $primary;
+    border-radius: $border-radius-full;
+
+    [data-theme="dark"] & {
+      background-color: rgba($primary, 0.2);
+    }
+  }
+
+  &__header {
+    text-align: center;
+    margin-bottom: $spacing-8;
+  }
+
+  &__lock-icon {
+    width: 64px;
+    height: 64px;
+    background-color: $gray-50;
+    color: $primary;
+    border-radius: 50%;
+    @include flex-center;
+    margin: 0 auto $spacing-4;
+
+    [data-theme="dark"] & {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+
+    svg {
+      stroke-width: 1.5;
+    }
+  }
+
+  &__title {
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    color: $black;
+    margin-bottom: $spacing-2;
+
+    [data-theme="dark"] & {
+      color: $white;
+    }
+  }
+
+  &__subtitle {
+    font-size: $font-size-sm;
+    color: $gray-500;
+  }
+
+  &__alert {
+    margin-bottom: $spacing-6;
+    border-radius: $border-radius-lg;
+    padding: $spacing-4;
+  }
+
+  &__footer {
+    margin-top: $spacing-8;
+    padding-top: $spacing-6;
+    border-top: 1px solid $gray-100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-4;
+
+    [data-theme="dark"] & {
+      border-color: $matte-dark-border;
+    }
+  }
+
+  &__footer-link {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-sm;
+    color: $gray-500;
+    text-decoration: none;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $primary;
+    }
+
+    svg {
+      transition: transform $transition-fast;
+    }
+
+    &:first-child:hover svg {
+      transform: translateX(-3px);
+    }
+  }
+
+  &__footer-sep {
+    color: $gray-300;
+    [data-theme="dark"] & { color: $gray-700; }
+  }
+
+  &__security-note {
+    margin-top: $spacing-6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: $spacing-2;
+    font-size: 11px;
+    color: $gray-400;
+    text-align: center;
+
+    svg {
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+  }
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-5;
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+    font-size: $font-size-sm;
+    font-weight: $font-weight-semibold;
+    color: $gray-700;
+
+    [data-theme="dark"] & {
+      color: $gray-300;
+    }
+
+    svg {
+      color: $primary;
+      opacity: 0.8;
+    }
+  }
+
+  &__input-wrap {
+    position: relative;
+
+    &--password {
+      .auth-form__input {
+        padding-right: $spacing-12;
+      }
+    }
+  }
+
+  &__input {
+    width: 100%;
+    padding: $spacing-3 $spacing-4;
+    font-size: $font-size-base;
+    color: $black;
+    background-color: $gray-50;
+    border: 1px solid $gray-200;
+    border-radius: $border-radius-lg;
+    transition: all $transition-fast;
+
+    [data-theme="dark"] & {
+      background-color: rgba(255, 255, 255, 0.03);
+      border-color: rgba(255, 255, 255, 0.1);
+      color: $white;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+      background-color: $white;
+      box-shadow: 0 0 0 4px rgba($primary, 0.1);
+
+      [data-theme="dark"] & {
+        background-color: rgba(255, 255, 255, 0.05);
+        box-shadow: 0 0 0 4px rgba($primary, 0.15);
+      }
+    }
+
+    &::placeholder {
+      color: $gray-400;
+    }
+  }
+
+  &__password-toggle {
+    position: absolute;
+    right: $spacing-4;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: $spacing-1;
+    color: $gray-400;
+    cursor: pointer;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $primary;
+    }
+  }
+
+  &__remember {
+    margin: $spacing-1 0;
+  }
+
+  &__checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: $spacing-3;
+    cursor: pointer;
+    font-size: $font-size-sm;
+    color: $gray-600;
+
+    [data-theme="dark"] & {
+      color: $gray-400;
+    }
+  }
+
+  &__checkbox {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+
+    &:checked ~ .auth-form__checkbox-custom {
+      background-color: $primary;
+      border-color: $primary;
+
+      &::after {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  }
+
+  &__checkbox-custom {
+    position: relative;
+    height: 18px;
+    width: 18px;
+    background-color: $gray-100;
+    border: 1px solid $gray-300;
+    border-radius: 4px;
+    transition: all $transition-fast;
+
+    [data-theme="dark"] & {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      opacity: 0;
+      left: 5px;
+      top: 2px;
+      width: 6px;
+      height: 10px;
+      border: solid white;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg) scale(0.5);
+      transition: all $transition-fast;
+    }
+  }
+
+  &__submit {
+    margin-top: $spacing-4;
+    box-shadow: 0 10px 15px -3px rgba($primary, 0.3);
+
+    &:hover {
+      box-shadow: 0 20px 25px -5px rgba($primary, 0.4);
+    }
+  }
+}
+
+// ─── Background Decoration ──────────────────────────────────────────────────
+
+.auth-bg-decoration {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+
+  &__blob {
+    position: absolute;
+    filter: blur(80px);
+    border-radius: 50%;
+    opacity: 0.4;
+
+    [data-theme="dark"] & {
+      opacity: 0.2;
+    }
+
+    &--1 {
+      width: 400px;
+      height: 400px;
+      background-color: rgba($primary, 0.4);
+      top: -100px;
+      right: -100px;
+    }
+
+    &--2 {
+      width: 300px;
+      height: 300px;
+      background-color: rgba($secondary, 0.3);
+      bottom: -50px;
+      left: -50px;
+    }
+
+    &--3 {
+      width: 200px;
+      height: 200px;
+      background-color: rgba($primary, 0.2);
+      top: 40%;
+      left: 10%;
+    }
+  }
+}
+
+@keyframes authCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Login{% endblock %}
+{% block meta_robots %}noindex, nofollow{% endblock %}
+
+{% block body_class %}auth-page{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+  <div class="auth-card">
+
+    {# ── Brand ─────────────────────────────────────────────────────────────── #}
+    <div class="auth-card__brand">
+      <a href="{{ url_for('main.index') }}" class="auth-card__brand-link" aria-label="{{ site_name }} home">
+        <span class="auth-card__brand-icon">✦</span>
+        <span class="auth-card__brand-name">{{ site_name }}</span>
+      </a>
+      <div class="auth-card__badge">Admin Panel</div>
+    </div>
+
+    {# ── Header ────────────────────────────────────────────────────────────── #}
+    <div class="auth-card__header">
+      <div class="auth-card__lock-icon" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <h1 class="auth-card__title">Welcome back</h1>
+      <p class="auth-card__subtitle">Sign in to the admin dashboard to manage your blog.</p>
+    </div>
+
+    {# ── Flash Messages ────────────────────────────────────────────────────── #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert--{{ category }} auth-card__alert" role="alert">
+          <span class="alert__icon">
+            {% if category == 'success' %}✅
+            {% elif category == 'danger' %}❌
+            {% elif category == 'warning' %}⚠️
+            {% else %}ℹ️
+            {% endif %}
+          </span>
+          <span class="alert__message">{{ message }}</span>
+        </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    {# ── Login Form ────────────────────────────────────────────────────────── #}
+    <form
+      action="{{ url_for('auth.login') }}"
+      method="post"
+      class="auth-form"
+      novalidate
+      aria-label="Admin login form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      {# Username / Email #}
+      <div class="auth-form__field">
+        <label for="username" class="auth-form__label">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          Username or Email
+        </label>
+        <div class="auth-form__input-wrap">
+          <input
+            type="text"
+            id="username"
+            name="username"
+            class="auth-form__input"
+            value="{{ username or '' }}"
+            required
+            autocomplete="username"
+            autofocus
+            placeholder="admin or admin@example.com"
+            aria-required="true"
+          />
+        </div>
+      </div>
+
+      {# Password #}
+      <div class="auth-form__field">
+        <label for="password" class="auth-form__label">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          Password
+        </label>
+        <div class="auth-form__input-wrap auth-form__input-wrap--password">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="auth-form__input"
+            required
+            autocomplete="current-password"
+            placeholder="Enter your password"
+            aria-required="true"
+          />
+          <button type="button"
+                  class="auth-form__password-toggle"
+                  id="password-toggle"
+                  aria-label="Toggle password visibility"
+                  aria-pressed="false">
+            <svg class="eye-open" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg class="eye-closed" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none">
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {# Remember Me #}
+      <div class="auth-form__remember">
+        <label class="auth-form__checkbox-label">
+          <input type="checkbox" name="remember" id="remember" class="auth-form__checkbox" />
+          <span class="auth-form__checkbox-custom" aria-hidden="true"></span>
+          <span class="auth-form__checkbox-text">Keep me signed in for 14 days</span>
+        </label>
+      </div>
+
+      {# Submit #}
+      <button type="submit" class="auth-form__submit btn btn--primary btn--full btn--lg">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/>
+          <line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        Sign In to Admin Panel
+      </button>
+
+    </form>
+
+    {# ── Footer Links ──────────────────────────────────────────────────────── #}
+    <div class="auth-card__footer">
+      <a href="{{ url_for('main.index') }}" class="auth-card__footer-link">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="19" y1="12" x2="5" y2="12"/>
+          <polyline points="12 19 5 12 12 5"/>
+        </svg>
+        Back to Website
+      </a>
+      <span class="auth-card__footer-sep" aria-hidden="true">·</span>
+      <a href="{{ url_for('blog.list') }}" class="auth-card__footer-link">
+        View Blog
+      </a>
+    </div>
+
+    {# ── Security Notice ───────────────────────────────────────────────────── #}
+    <div class="auth-card__security-note" role="note">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <span>This is a restricted area. Unauthorised access attempts are logged.</span>
+    </div>
+
+  </div>{# /.auth-card #}
+
+  {# ── Background decoration ──────────────────────────────────────────────── #}
+  <div class="auth-bg-decoration" aria-hidden="true">
+    <div class="auth-bg-decoration__blob auth-bg-decoration__blob--1"></div>
+    <div class="auth-bg-decoration__blob auth-bg-decoration__blob--2"></div>
+    <div class="auth-bg-decoration__blob auth-bg-decoration__blob--3"></div>
+  </div>
+
+</div>{# /.auth-wrapper #}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  // Password visibility toggle
+  (function () {
+    const toggle = document.getElementById('password-toggle');
+    const input  = document.getElementById('password');
+    if (!toggle || !input) return;
+
+    const eyeOpen   = toggle.querySelector('.eye-open');
+    const eyeClosed = toggle.querySelector('.eye-closed');
+
+    toggle.addEventListener('click', function () {
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      toggle.setAttribute('aria-pressed', String(isPassword));
+      eyeOpen.style.display   = isPassword ? 'none'  : '';
+      eyeClosed.style.display = isPassword ? ''      : 'none';
+      input.focus();
+    });
+  }());
+</script>
+{% endblock %}

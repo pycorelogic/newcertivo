@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page_title }} — Certivo{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1 class="page-header__title">{{ category.name if category else (page_title if page_title else "Latest Articles") }}</h1>
+    {% if q %}
+      <p class="page-header__subtitle">Search results for: <strong>{{ q }}</strong></p>
+    {% endif %}
+  </div>
+</div>
+
+<section class="section">
+  <div class="container">
+    {% if posts %}
+      <div class="posts-grid">
+        {% for post in posts %}
+          {% include 'partials/post_card.html' %}
+        {% endfor %}
+      </div>
+
+      <div class="pagination-wrapper" style="margin-top: 3rem; display: flex; justify-content: center;">
+        {% include 'partials/pagination.html' %}
+      </div>
+    {% else %}
+      <div class="empty-state" style="text-align: center; padding: 5rem 0;">
+        <h2 style="margin-bottom: 1rem;">No articles found</h2>
+        <p style="color: #666; margin-bottom: 2rem;">We couldn't find what you were looking for. Try a different search or browse our categories.</p>
+        <a href="{{ url_for('blog.list') }}" class="btn btn--primary">View All Articles</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

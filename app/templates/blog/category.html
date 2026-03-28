@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ category.name }} — Articles{% endblock %}
+{% block meta_description %}Browse all articles in the {{ category.name }} category on {{ site_name }}.{% endblock %}
+
+{% block content %}
+
+{# ── PAGE HEADER ──────────────────────────────────────────────────────────── #}
+<div class="page-header page-header--category" style="--cat-color: {{ category.color }}">
+  <div class="container">
+    <div class="page-header__inner">
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <ol class="breadcrumb__list" role="list">
+          <li class="breadcrumb__item">
+            <a href="{{ url_for('main.index') }}" class="breadcrumb__link">Home</a>
+          </li>
+          <li class="breadcrumb__item" aria-hidden="true">
+            <span class="breadcrumb__sep">›</span>
+          </li>
+          <li class="breadcrumb__item">
+            <a href="{{ url_for('blog.list') }}" class="breadcrumb__link">Blog</a>
+          </li>
+          <li class="breadcrumb__item" aria-hidden="true">
+            <span class="breadcrumb__sep">›</span>
+          </li>
+          <li class="breadcrumb__item breadcrumb__item--current" aria-current="page">
+            <span class="breadcrumb__current">{{ category.name }}</span>
+          </li>
+        </ol>
+      </nav>
+
+      <div class="page-header__category-meta">
+        <div class="page-header__category-icon"
+             style="background: {{ category.color }}20; border-color: {{ category.color }}40">
+          {% if category.icon %}
+            <i class="{{ category.icon }}" style="color: {{ category.color }}" aria-hidden="true"></i>
+          {% else %}
+            <span style="color: {{ category.color }}">🗂️</span>
+          {% endif %}
+        </div>
+        <div>
+          <span class="page-header__category-label" style="color: {{ category.color }}">Category</span>
+          <h1 class="page-header__title">{{ category.name }}</h1>
+        </div>
+      </div>
+
+      {% if category.description %}
+      <p class="page-header__subtitle">{{ category.description }}</p>
+      {% endif %}
+
+      <p class="page-header__count">
+        <strong>{{ pagination.total if pagination else 0 }}</strong>
+        article{{ 's' if (pagination.total if pagination else 0) != 1 else '' }} in this category
+      </p>
+    </div>
+  </div>
+</div>
+
+{# ── OTHER CATEGORIES ─────────────────────────────────────────────────────── #}
+{% if nav_categories | length > 1 %}
+<div class="category-filter-bar">
+  <div class="container">
+    <div class="category-filter-bar__inner">
+      <span class="category-filter-bar__label">All Categories:</span>
+      <nav class="category-filter-bar__tabs" aria-label="Browse other categories">
+        <a href="{{ url_for('blog.list') }}" class="category-filter-tab">All</a>
+        {% for cat in nav_categories %}
+        <a href="{{ url_for('blog.category', slug=cat.slug) }}"
+           class="category-filter-tab {% if cat.slug == category.slug %}category-filter-tab--active{% endif %}"
+           style="--cat-color: {{ cat.color }}">
+          <span class="category-filter-tab__dot" style="background: {{ cat.color }}"></span>
+          {{ cat.name }}
+          <span class="category-filter-tab__count">{{ cat.published_post_count }}</span>
+        </a>
+        {% endfor %}
+      </nav>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{# ── MAIN CONTENT ─────────────────────────────────────────────────────────── #}
+<section class="section blog-list-section" aria-labelledby="category-posts-heading">
+  <div class="container">
+    <div class="layout-with-sidebar">
+
+      <div class="layout-main">
+        <h2 class="sr-only" id="category-posts-heading">Posts in {{ category.name }}</h2>
+
+        {% if posts %}
+
+        <div class="list-toolbar">
+          <p class="list-toolbar__count" aria-live="polite">
+            Showing
+            <strong>{{ ((pagination.page - 1) * pagination.per_page) + 1 }}</strong>–<strong>{{ [pagination.page * pagination.per_page, pagination.total] | min }}</strong>
+            of <strong>{{ pagination.total }}</strong>
+          </p>
+        </div>
+
+        <div class="posts-grid posts-grid--3">
+          {% for post in posts %}
+          {% include 'partials/post_card.html' %}
+          {% endfor %}
+        </div>
+
+        {% include 'partials/pagination.html' %}
+
+        {% else %}
+        <div class="empty-state empty-state--large">
+          <div class="empty-state__icon-wrap">
+            <span class="empty-state__icon" style="color: {{ category.color }}">🗂️</span>
+          </div>
+          <h2 class="empty-state__title">No articles in "{{ category.name }}" yet</h2>
+          <p class="empty-state__text">
+            We're working on content for this category — check back soon!
+          </p>
+          <a href="{{ url_for('blog.list') }}" class="btn btn--primary">
+            Browse All Articles
+          </a>
+        </div>
+        {% endif %}
+
+      </div>
+
+      {% include 'partials/sidebar.html' %}
+
+    </div>
+  </div>
+</section>
+
+{% endblock %}

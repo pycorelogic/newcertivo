@@ -1,0 +1,116 @@
+// ============================================================================
+// DARK MODE - VARIABLE OVERRIDES
+// ============================================================================
+
+[data-theme="dark"] {
+  background-color: $dark-bg;
+  color: $dark-text;
+
+  body {
+    background-color: $dark-bg;
+    color: $dark-text;
+  }
+
+  .navbar {
+    background-color: $dark-bg;
+    border-bottom: 1px solid $dark-border;
+  }
+
+  .card, .post-card, .sidebar__widget, .about-hero-card {
+    background-color: $dark-card-bg;
+    border: 1px solid $dark-border;
+    box-shadow: none;
+
+    &:hover {
+      border-color: rgba($primary, 0.4);
+    }
+  }
+
+  h1, h2, h3, h4, h5, h6, .page-header__title {
+    color: $white !important;
+  }
+
+  // Prevent broad selectors from overriding button text colors
+  p, span, li, div:not(.btn):not(.wp-block-button__link) {
+    color: $white;
+  }
+
+  // Ensure primary buttons have high contrast in dark mode
+  .btn--primary, .has-primary-background-color {
+    color: $white !important;
+    background-color: $primary !important;
+  }
+
+  // WordPress block support
+  .wp-block-button__link {
+    color: $white !important;
+    padding: $spacing-3 $spacing-6;
+    border-radius: $border-radius-lg;
+    text-decoration: none;
+    font-weight: $font-weight-bold;
+    display: inline-block;
+    transition: transform $transition-fast;
+
+    &:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+  }
+
+  // YouTube Specific Button (Matte Red)
+  .btn-youtube, .has-background[style*="background-color: #FF0000"] {
+    background-color: #e62117 !important; // More matte YouTube red
+    color: $white !important;
+  }
+
+  .text-muted, .page-header__subtitle, .admin-form-help-text, .admin-form-label-hint {
+    color: $gray-400 !important;
+  }
+
+  .border-color, hr {
+    border-color: $dark-border;
+  }
+
+  // --- Global Form Elements in Dark Mode ---
+  input, textarea, select {
+    background-color: #2b2b2b;
+    border-color: #444;
+    color: $white;
+
+    &::placeholder {
+      color: #666;
+    }
+
+    &:focus {
+      border-color: $primary;
+      background-color: #333333;
+      box-shadow: 0 0 0 3px rgba($primary, 0.2);
+    }
+  }
+
+  .footer {
+    background-color: $dark-bg;
+    border-top: 1px solid $dark-border;
+    color: $gray-400;
+  }
+
+  // --- Scrollbar for Dark Mode ---
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1a1a1a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 5px;
+    border: 2px solid #1a1a1a;
+    &:hover {
+      background: #444;
+    }
+  }
+}
+

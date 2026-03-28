@@ -1,0 +1,440 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - {{ site_name }}{% endblock %}
+
+{% block meta_description %}Get in touch with {{ site_name }}. Send us your questions, feedback, or inquiries and we'll get back to you as soon as possible.{% endblock %}
+
+{% block content %}
+<!-- Contact Page Hero -->
+<section class="page-hero">
+    <div class="container">
+        <div class="page-hero__content">
+            <h1 class="page-hero__title">Get In Touch</h1>
+            <p class="page-hero__subtitle">
+                Have a question or feedback? We'd love to hear from you. Fill out the form below and we'll respond within 1-2 business days.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Form Section -->
+<section class="contact-section">
+    <div class="container">
+        <div class="contact-grid">
+            <!-- Contact Form -->
+            <div class="contact-form-wrapper">
+                <div class="card">
+                    <h2 class="card__title">Send Us a Message</h2>
+
+                    <!-- Flash Messages -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert--{{ category }}">
+                                    <span class="alert__message">{{ message }}</span>
+                                    <button type="button" class="alert__close" aria-label="Close">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('main.contact') }}" class="contact-form" data-validate>
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="name" class="form-label">
+                                    Full Name <span class="required">*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    class="form-control"
+                                    placeholder="John Doe"
+                                    value="{{ form_data.name or '' }}"
+                                    required
+                                    maxlength="100"
+                                >
+                                <span class="form-error"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email" class="form-label">
+                                    Email Address <span class="required">*</span>
+                                </label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    class="form-control"
+                                    placeholder="john@example.com"
+                                    value="{{ form_data.email or '' }}"
+                                    required
+                                >
+                                <span class="form-error"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="subject" class="form-label">
+                                Subject <span class="required">*</span>
+                            </label>
+                            <input
+                                type="text"
+                                id="subject"
+                                name="subject"
+                                class="form-control"
+                                placeholder="What is this about?"
+                                value="{{ form_data.subject or '' }}"
+                                required
+                                maxlength="200"
+                            >
+                            <span class="form-error"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="message" class="form-label">
+                                Message <span class="required">*</span>
+                            </label>
+                            <textarea
+                                id="message"
+                                name="message"
+                                class="form-control"
+                                rows="8"
+                                placeholder="Tell us more about your inquiry..."
+                                required
+                                maxlength="5000"
+                            >{{ form_data.message or '' }}</textarea>
+                            <span class="form-error"></span>
+                            <span class="form-help">Maximum 5000 characters</span>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn--primary btn--lg">
+                                <i class="fas fa-paper-plane"></i>
+                                Send Message
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Contact Info Sidebar -->
+            <div class="contact-info">
+                <div class="card">
+                    <h3 class="card__title">Contact Information</h3>
+
+                    <div class="contact-info__item">
+                        <div class="contact-info__icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-info__content">
+                            <h4>Email</h4>
+                            <p>{{ config.ADMIN_EMAIL or 'contact@certivo.com' }}</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-info__item">
+                        <div class="contact-info__icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="contact-info__content">
+                            <h4>Response Time</h4>
+                            <p>Within 1-2 business days</p>
+                        </div>
+                    </div>
+
+                    <div class="contact-info__item">
+                        <div class="contact-info__icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="contact-info__content">
+                            <h4>Website</h4>
+                            <p>{{ site_url }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card contact-social">
+                    <h3 class="card__title">Follow Us</h3>
+                    <p class="contact-social__text">
+                        Connect with us on social media for the latest updates.
+                    </p>
+                    <div class="social-links">
+                        <a href="#" class="social-link social-link--twitter" aria-label="Twitter">
+                            <i class="fab fa-twitter"></i>
+                        </a>
+                        <a href="#" class="social-link social-link--facebook" aria-label="Facebook">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="#" class="social-link social-link--instagram" aria-label="Instagram">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="#" class="social-link social-link--linkedin" aria-label="LinkedIn">
+                            <i class="fab fa-linkedin-in"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- FAQ Quick Links -->
+                <div class="card contact-faq">
+                    <h3 class="card__title">Quick Help</h3>
+                    <ul class="contact-faq__list">
+                        <li>
+                            <a href="{{ url_for('main.about') }}">
+                                <i class="fas fa-info-circle"></i>
+                                About Us
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('blog.list') }}">
+                                <i class="fas fa-newspaper"></i>
+                                Browse Blog
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ url_for('main.feedback') }}">
+                                <i class="fas fa-comment-dots"></i>
+                                Leave Feedback
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="cta-card">
+            <div class="cta-card__content">
+                <h2 class="cta-card__title">Prefer Email?</h2>
+                <p class="cta-card__text">
+                    You can also reach us directly at <a href="mailto:{{ config.ADMIN_EMAIL }}">{{ config.ADMIN_EMAIL }}</a>
+                </p>
+            </div>
+            <div class="cta-card__actions">
+                <a href="mailto:{{ config.ADMIN_EMAIL }}" class="btn btn--secondary btn--lg">
+                    <i class="fas fa-envelope"></i>
+                    Email Us Directly
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.contact-section {
+    padding: 4rem 0;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+@media (min-width: 992px) {
+    .contact-grid {
+        grid-template-columns: 2fr 1fr;
+    }
+}
+
+.contact-form-wrapper .card {
+    padding: 2rem;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.contact-info__item {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem 0;
+}
+
+.contact-info__item:not(:last-child) {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.contact-info__icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #eff6ff;
+    color: #FF7043;
+    border-radius: 12px;
+    font-size: 1.25rem;
+}
+
+.contact-info__content h4 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+    margin-bottom: 0.25rem;
+}
+
+.contact-info__content p {
+    font-size: 1rem;
+    color: #111827;
+    margin: 0;
+}
+
+.contact-social__text {
+    margin-bottom: 1.5rem;
+    color: #6b7280;
+}
+
+.social-links {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.social-link {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: #f3f4f6;
+    color: #4b5563;
+    transition: all 0.2s;
+}
+
+.social-link:hover {
+    transform: translateY(-2px);
+}
+
+.social-link--twitter:hover {
+    background-color: #1da1f2;
+    color: white;
+}
+
+.social-link--facebook:hover {
+    background-color: #1877f2;
+    color: white;
+}
+
+.social-link--instagram:hover {
+    background-color: #e4405f;
+    color: white;
+}
+
+.social-link--linkedin:hover {
+    background-color: #0077b5;
+    color: white;
+}
+
+.contact-faq__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.contact-faq__list li {
+    margin-bottom: 0;
+}
+
+.contact-faq__list a {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    color: #4b5563;
+    border-radius: 8px;
+    transition: all 0.2s;
+}
+
+.contact-faq__list a:hover {
+    background-color: #f3f4f6;
+    color: #FF7043;
+}
+
+.contact-faq__list i {
+    font-size: 1.125rem;
+    width: 24px;
+    text-align: center;
+}
+
+.cta-section {
+    padding: 3rem 0;
+    background-color: #f9fafb;
+}
+
+.cta-card {
+    background: linear-gradient(135deg, #FF7043 0%, #1e40af 100%);
+    border-radius: 16px;
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2rem;
+}
+
+@media (min-width: 768px) {
+    .cta-card {
+        flex-direction: row;
+        text-align: left;
+        justify-content: space-between;
+    }
+}
+
+.cta-card__content {
+    flex: 1;
+}
+
+.cta-card__title {
+    color: white;
+    margin-bottom: 0.5rem;
+    font-size: 1.875rem;
+}
+
+.cta-card__text {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
+}
+
+.cta-card__text a {
+    color: white;
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.btn--secondary {
+    background-color: white;
+    color: #FF7043;
+}
+
+.btn--secondary:hover {
+    background-color: #f3f4f6;
+    color: #1e40af;
+}
+</style>
+{% endblock %}

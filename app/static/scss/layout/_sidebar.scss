@@ -1,0 +1,412 @@
+// ============================================================================
+// SIDEBAR WIDGETS
+// ============================================================================
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+
+  @include max-lg {
+    gap: $spacing-6;
+  }
+}
+
+.sidebar__widget {
+  background-color: $white;
+  border-radius: $border-radius-xl;
+  box-shadow: $shadow-sm;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  transition: all $transition-base;
+
+  [data-theme="dark"] & {
+    background-color: $dark-card-bg;
+    border-color: $dark-border;
+    box-shadow: none;
+  }
+
+  &:hover {
+    box-shadow: $shadow-md;
+    border-color: rgba($primary, 0.1);
+  }
+
+  &-header {
+    padding: $spacing-4 $spacing-6;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    background-color: rgba(0, 0, 0, 0.01);
+
+    [data-theme="dark"] & {
+      border-bottom-color: rgba(255, 255, 255, 0.03);
+      background-color: rgba(255, 255, 255, 0.01);
+    }
+  }
+
+  &-title {
+    font-size: $font-size-sm;
+    font-weight: $font-weight-bold;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: $gray-700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+
+    [data-theme="dark"] & {
+      color: $gray-300;
+    }
+
+    &-icon {
+      font-size: 1.1rem;
+    }
+  }
+}
+
+// ─── Search Widget ─────────────────────────────────────────────────────────
+
+.sidebar__search-form {
+  padding: $spacing-5 $spacing-6;
+}
+
+.sidebar__search-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar__search-input {
+  width: 100%;
+  padding: $spacing-3 $spacing-12 $spacing-3 $spacing-4;
+  background-color: $gray-50;
+  border: 1px solid $gray-200;
+  border-radius: $border-radius-lg;
+  font-size: $font-size-sm;
+  transition: all $transition-fast;
+
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.03);
+    border-color: $dark-border;
+    color: $white;
+  }
+
+  &:focus {
+    outline: none;
+    background-color: $white;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+
+    [data-theme="dark"] & {
+      background-color: rgba(255, 255, 255, 0.05);
+      border-color: $primary;
+    }
+  }
+}
+
+.sidebar__search-btn {
+  position: absolute;
+  right: $spacing-3;
+  background: none;
+  border: none;
+  color: $gray-400;
+  cursor: pointer;
+  padding: $spacing-1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color $transition-fast;
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+// ─── Popular Posts ─────────────────────────────────────────────────────────
+
+.sidebar__popular-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar__popular-item {
+  display: flex;
+  gap: $spacing-4;
+  padding: $spacing-4 $spacing-6;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  transition: background-color $transition-fast;
+
+  [data-theme="dark"] & {
+    border-bottom-color: rgba(255, 255, 255, 0.02);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.01);
+    [data-theme="dark"] & {
+      background-color: rgba(255, 255, 255, 0.01);
+    }
+  }
+}
+
+.sidebar__popular-rank {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background-color: $gray-100;
+  color: $gray-600;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  border-radius: $border-radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: $gray-400;
+  }
+
+  .sidebar__popular-item:nth-child(1) & { background-color: $primary; color: $white; }
+  .sidebar__popular-item:nth-child(2) & { background-color: rgba($primary, 0.8); color: $white; }
+  .sidebar__popular-item:nth-child(3) & { background-color: rgba($primary, 0.6); color: $white; }
+}
+
+.sidebar__popular-body {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-1;
+}
+
+.sidebar__popular-title {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $black;
+  text-decoration: none;
+  line-height: 1.4;
+  transition: color $transition-fast;
+
+  [data-theme="dark"] & {
+    color: $white;
+  }
+
+  &:hover {
+    color: $primary;
+  }
+}
+
+.sidebar__popular-meta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  font-size: 11px;
+  color: $gray-500;
+}
+
+.sidebar__popular-views {
+  display: flex;
+  align-items: center;
+  gap: $spacing-1;
+
+  svg { opacity: 0.7; }
+}
+
+// ─── Affiliate Card ────────────────────────────────────────────────────────
+
+.sidebar__affiliate-card {
+  position: relative;
+  padding: $spacing-5 $spacing-6;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+
+  [data-theme="dark"] & {
+    border-bottom-color: rgba(255, 255, 255, 0.03);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.sidebar__affiliate-badge {
+  position: absolute;
+  top: $spacing-3;
+  right: $spacing-3;
+  z-index: 2;
+  background-color: $accent;
+  color: $white;
+  font-size: 9px;
+  font-weight: $font-weight-bold;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: $border-radius-sm;
+  box-shadow: $shadow-sm;
+}
+
+.sidebar__affiliate-img-wrap {
+  margin-bottom: $spacing-4;
+  border-radius: $border-radius-lg;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background-color: $gray-50;
+
+  [data-theme="dark"] & {
+    background-color: rgba(255, 255, 255, 0.02);
+  }
+}
+
+.sidebar__affiliate-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform $transition-slow;
+
+  .sidebar__affiliate-card:hover & {
+    transform: scale(1.05);
+  }
+}
+
+.sidebar__affiliate-title {
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  color: $black;
+  margin: 0 0 $spacing-1;
+
+  [data-theme="dark"] & {
+    color: $white;
+  }
+}
+
+.sidebar__affiliate-desc {
+  font-size: $font-size-xs;
+  color: $gray-600;
+  line-height: 1.5;
+  margin-bottom: $spacing-4;
+
+  [data-theme="dark"] & {
+    color: $gray-400;
+  }
+}
+
+// ─── Newsletter Widget ─────────────────────────────────────────────────────
+
+.sidebar__widget--newsletter {
+  background-color: $black;
+  color: $white;
+  border: none;
+
+  [data-theme="dark"] & {
+    background-color: #111;
+  }
+}
+
+.sidebar__newsletter-inner {
+  padding: $spacing-8 $spacing-6;
+  text-align: center;
+}
+
+.sidebar__newsletter-icon {
+  font-size: 2.5rem;
+  margin-bottom: $spacing-3;
+}
+
+.sidebar__newsletter-title {
+  color: $white;
+  margin-bottom: $spacing-2;
+}
+
+.sidebar__newsletter-text {
+  color: rgba($white, 0.7);
+  font-size: $font-size-sm;
+  margin-bottom: $spacing-6;
+}
+
+// ─── Feedback & About ──────────────────────────────────────────────────────
+
+.sidebar__feedback-inner, .sidebar__about-body {
+  padding: $spacing-6;
+  text-align: center;
+}
+
+.sidebar__about-avatar {
+  margin-bottom: $spacing-4;
+  img {
+    border-radius: 50%;
+    border: 3px solid rgba($primary, 0.1);
+  }
+}
+
+.sidebar__about-text, .sidebar__feedback-text {
+  font-size: $font-size-sm;
+  color: $gray-600;
+  line-height: 1.6;
+  margin-bottom: $spacing-5;
+
+  [data-theme="dark"] & {
+    color: $gray-400;
+  }
+}
+
+.sidebar__feedback-emoji {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: $spacing-2;
+}
+
+.sidebar__feedback-title {
+  margin-bottom: $spacing-2;
+}
+
+// ─── Categories Widget ─────────────────────────────────────────────────────
+
+.sidebar__categories-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar__category-item {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+  &:last-child { border-bottom: none; }
+  [data-theme="dark"] & { border-bottom-color: rgba(255, 255, 255, 0.02); }
+}
+
+.sidebar__category-link {
+  display: flex;
+  align-items: center;
+  gap: $spacing-3;
+  padding: $spacing-3 $spacing-6;
+  text-decoration: none;
+  color: $gray-700;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  transition: all $transition-fast;
+
+  [data-theme="dark"] & { color: $gray-300; }
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.01);
+    color: var(--cat-color);
+    padding-left: $spacing-8;
+
+    [data-theme="dark"] & {
+      background-color: rgba(255, 255, 255, 0.01);
+    }
+  }
+}
+
+.sidebar__category-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.sidebar__category-count {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: $font-weight-bold;
+  padding: 2px 8px;
+  border-radius: $border-radius-full;
+}

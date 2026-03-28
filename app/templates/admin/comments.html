@@ -1,0 +1,378 @@
+{% extends 'admin/base.html' %}
+
+{% block admin_title %}Comments{% endblock %}
+
+{% block admin_breadcrumb %}
+<li class="admin-topbar__breadcrumb-sep" aria-hidden="true">›</li>
+<li class="admin-topbar__breadcrumb-item admin-topbar__breadcrumb-item--current" aria-current="page">
+  Comments
+</li>
+{% endblock %}
+
+{% block admin_content %}
+<div class="admin-page-header">
+  <div class="admin-page-header__left">
+    <h1 class="admin-page-header__title">
+      <span class="admin-page-header__title-icon">💬</span>
+      Comments
+      {% if pending_count > 0 %}
+      <span class="admin-page-header__title-badge admin-page-header__title-badge--orange">
+        {{ pending_count }} pending
+      </span>
+      {% endif %}
+    </h1>
+    <p class="admin-page-header__subtitle">
+      Review, approve, and moderate reader comments across your blog posts.
+    </p>
+  </div>
+</div>
+
+{# ── STATUS FILTER TABS ───────────────────────────────────────────────────── #}
+<div class="admin-tab-bar">
+  <nav class="admin-tabs" aria-label="Comment filter tabs">
+    <a href="{{ url_for('admin.comments', status='pending') }}"
+       class="admin-tab {% if status_filter == 'pending' %}admin-tab--active{% endif %}">
+      Pending
+      {% if pending_count > 0 %}
+      <span class="admin-tab__badge admin-tab__badge--orange">{{ pending_count }}</span>
+      {% endif %}
+    </a>
+    <a href="{{ url_for('admin.comments', status='approved') }}"
+       class="admin-tab {% if status_filter == 'approved' %}admin-tab--active{% endif %}">
+      Approved
+    </a>
+    <a href="{{ url_for('admin.comments', status='spam') }}"
+       class="admin-tab {% if status_filter == 'spam' %}admin-tab--active{% endif %}">
+      Spam
+    </a>
+    <a href="{{ url_for('admin.comments', status='all') }}"
+       class="admin-tab {% if status_filter == 'all' %}admin-tab--active{% endif %}">
+      All
+    </a>
+  </nav>
+  {% if pagination %}
+  <p class="admin-tab-bar__count">
+    <strong>{{ pagination.total }}</strong> comment{{ 's' if pagination.total != 1 else '' }}
+  </p>
+  {% endif %}
+</div>
+
+{# ── BULK ACTIONS FORM ────────────────────────────────────────────────────── #}
+<form action="{{ url_for('admin.comments_bulk_action') }}" method="post" id="bulk-comments-form">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+  {# Bulk action bar #}
+  <div class="admin-bulk-bar" id="bulk-action-bar" aria-hidden="true" style="display:none">
+    <div class="admin-bulk-bar__inner">
+      <span class="admin-bulk-bar__count" id="bulk-count">0 selected</span>
+      <div class="admin-bulk-bar__actions">
+        <button type="submit" name="action" value="approve"
+                class="btn btn--success btn--sm admin-bulk-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Approve Selected
+        </button>
+        <button type="submit" name="action" value="spam"
+                class="btn btn--warning btn--sm admin-bulk-btn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
+            <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          Mark Spam
+        </button>
+        <button type="submit" name="action" value="delete"
+                class="btn btn--danger btn--sm admin-bulk-btn"
+                onclick="return confirm('Permanently delete the selected comments?')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+          Delete Selected
+        </button>
+      </div>
+      <button type="button" class="admin-bulk-bar__cancel" id="bulk-cancel-btn">
+        &times; Cancel
+      </button>
+    </div>
+  </div>
+
+  {# ── COMMENTS LIST ──────────────────────────────────────────────────────── #}
+  <div class="admin-panel">
+    <div class="admin-panel__body admin-panel__body--no-pad">
+
+      {% if comments %}
+
+      <div class="admin-comments-list">
+
+        {# Select All row #}
+        <div class="admin-comments-select-all-row">
+          <label class="admin-table__checkbox-label">
+            <input type="checkbox" id="select-all-comments" aria-label="Select all comments" />
+            <span>Select all on this page</span>
+          </label>
+        </div>
+
+        {% for comment in comments %}
+        <div class="admin-comment-card {% if not comment.is_approved and not comment.is_spam %}admin-comment-card--pending{% elif comment.is_spam %}admin-comment-card--spam{% endif %}"
+             id="comment-card-{{ comment.id }}">
+
+          {# Checkbox #}
+          <div class="admin-comment-card__check">
+            <input type="checkbox" name="comment_ids" value="{{ comment.id }}"
+                   class="comment-checkbox" aria-label="Select comment by {{ comment.name }}" />
+          </div>
+
+          {# Avatar #}
+          <div class="admin-comment-card__avatar">
+            <img
+              src="{{ comment.avatar_url }}"
+              alt="{{ comment.name }}"
+              width="44"
+              height="44"
+              loading="lazy"
+            />
+          </div>
+
+          {# Body #}
+          <div class="admin-comment-card__body">
+
+            <div class="admin-comment-card__header">
+              <div class="admin-comment-card__author-info">
+                <span class="admin-comment-card__author">{{ comment.name }}</span>
+                <span class="admin-comment-card__email">{{ comment.email }}</span>
+                {% if comment.website %}
+                <a href="{{ comment.website }}" class="admin-comment-card__website"
+                   target="_blank" rel="noopener noreferrer nofollow">
+                  {{ comment.website | truncate(40, True, '…') }}
+                </a>
+                {% endif %}
+                {% if comment.ip_address %}
+                <span class="admin-comment-card__ip" title="IP Address">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  {{ comment.ip_address }}
+                </span>
+                {% endif %}
+              </div>
+
+              <div class="admin-comment-card__meta">
+                <time class="admin-comment-card__date" datetime="{{ comment.iso_date }}"
+                      title="{{ comment.created_at | human_datetime }}">
+                  {{ comment.created_at | time_ago }}
+                </time>
+                <span class="admin-comment-card__status-badge
+                      {% if comment.is_spam %}admin-comment-card__status-badge--spam
+                      {% elif comment.is_approved %}admin-comment-card__status-badge--approved
+                      {% else %}admin-comment-card__status-badge--pending{% endif %}">
+                  {% if comment.is_spam %}Spam
+                  {% elif comment.is_approved %}Approved
+                  {% else %}Pending{% endif %}
+                </span>
+                {% if comment.is_reply %}
+                <span class="admin-comment-card__reply-badge">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="9 14 4 9 9 4"/>
+                    <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
+                  </svg>
+                  Reply
+                </span>
+                {% endif %}
+              </div>
+            </div>
+
+            {# Post reference #}
+            <div class="admin-comment-card__post-ref">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+              On post:
+              <a href="{{ url_for('blog.detail', slug=comment.post.slug) }}"
+                 class="admin-comment-card__post-link" target="_blank" rel="noopener">
+                {{ comment.post.title | truncate(60, True, '…') }}
+              </a>
+              {% if comment.parent %}
+              <span class="admin-comment-card__post-ref-sep">·</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="9 14 4 9 9 4"/>
+                <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
+              </svg>
+              Replying to <strong>{{ comment.parent.name }}</strong>
+              {% endif %}
+            </div>
+
+            {# Comment content #}
+            <div class="admin-comment-card__content">
+              {{ comment.content | safe }}
+            </div>
+
+          </div>
+
+          {# Actions #}
+          <div class="admin-comment-card__actions">
+            {% if not comment.is_approved %}
+            <form action="{{ url_for('admin.comment_approve', comment_id=comment.id) }}"
+                  method="post" class="admin-comment-card__action-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button type="submit"
+                      class="admin-comment-card__action-btn admin-comment-card__action-btn--approve"
+                      title="Approve this comment">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                <span>Approve</span>
+              </button>
+            </form>
+            {% endif %}
+
+            {% if not comment.is_spam %}
+            <form action="{{ url_for('admin.comment_spam', comment_id=comment.id) }}"
+                  method="post" class="admin-comment-card__action-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button type="submit"
+                      class="admin-comment-card__action-btn admin-comment-card__action-btn--spam"
+                      title="Mark as spam">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                <span>Spam</span>
+              </button>
+            </form>
+            {% endif %}
+
+            <form action="{{ url_for('admin.comment_delete', comment_id=comment.id) }}"
+                  method="post" class="admin-comment-card__action-form"
+                  onsubmit="return confirm('Permanently delete this comment?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+              <button type="submit"
+                      class="admin-comment-card__action-btn admin-comment-card__action-btn--delete"
+                      title="Delete permanently">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                </svg>
+                <span>Delete</span>
+              </button>
+            </form>
+
+            <a href="{{ url_for('blog.detail', slug=comment.post.slug) }}#comment-{{ comment.id }}"
+               class="admin-comment-card__action-btn admin-comment-card__action-btn--view"
+               target="_blank" rel="noopener" title="View on post">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <span>View</span>
+            </a>
+          </div>
+
+        </div>
+        {% endfor %}
+
+      </div>
+
+      {# Pagination #}
+      {% if pagination and pagination.pages > 1 %}
+      <div class="admin-pagination">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('admin.comments', page=pagination.prev_num, status=status_filter) }}"
+           class="admin-pagination__btn" rel="prev">← Previous</a>
+        {% endif %}
+        <span class="admin-pagination__info">Page {{ pagination.page }} of {{ pagination.pages }}</span>
+        {% if pagination.has_next %}
+        <a href="{{ url_for('admin.comments', page=pagination.next_num, status=status_filter) }}"
+           class="admin-pagination__btn" rel="next">Next →</a>
+        {% endif %}
+      </div>
+      {% endif %}
+
+      {% else %}
+
+      <div class="admin-empty-state admin-empty-state--large">
+        <span class="admin-empty-state__icon">
+          {% if status_filter == 'pending' %}🎉
+          {% elif status_filter == 'spam' %}🛡️
+          {% else %}💬{% endif %}
+        </span>
+        <h3 class="admin-empty-state__title">
+          {% if status_filter == 'pending' %}No comments awaiting moderation
+          {% elif status_filter == 'approved' %}No approved comments yet
+          {% elif status_filter == 'spam' %}No spam comments
+          {% else %}No comments yet{% endif %}
+        </h3>
+        <p class="admin-empty-state__text">
+          {% if status_filter == 'pending' %}
+            You're all caught up! New comments will appear here for review.
+          {% else %}
+            Comments will appear here as readers engage with your posts.
+          {% endif %}
+        </p>
+      </div>
+
+      {% endif %}
+
+    </div>
+  </div>
+</form>
+
+{% endblock %}
+
+{% block admin_extra_scripts %}
+<script>
+(function () {
+  const selectAll   = document.getElementById('select-all-comments');
+  const checkboxes  = document.querySelectorAll('.comment-checkbox');
+  const bulkBar     = document.getElementById('bulk-action-bar');
+  const bulkCount   = document.getElementById('bulk-count');
+  const cancelBtn   = document.getElementById('bulk-cancel-btn');
+
+  function updateBulkBar() {
+    const checked = document.querySelectorAll('.comment-checkbox:checked');
+    if (checked.length > 0) {
+      bulkBar.style.display = 'block';
+      bulkBar.setAttribute('aria-hidden', 'false');
+      bulkCount.textContent = checked.length + ' selected';
+    } else {
+      bulkBar.style.display = 'none';
+      bulkBar.setAttribute('aria-hidden', 'true');
+    }
+  }
+
+  if (selectAll) {
+    selectAll.addEventListener('change', function () {
+      checkboxes.forEach(cb => { cb.checked = this.checked; });
+      updateBulkBar();
+    });
+  }
+
+  checkboxes.forEach(cb => {
+    cb.addEventListener('change', updateBulkBar);
+  });
+
+  if (cancelBtn) {
+    cancelBtn.addEventListener('click', function () {
+      checkboxes.forEach(cb => { cb.checked = false; });
+      if (selectAll) selectAll.checked = false;
+      updateBulkBar();
+    });
+  }
+}());
+</script>
+{% endblock %}

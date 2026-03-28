@@ -1,0 +1,173 @@
+{% extends 'admin/base.html' %}
+
+{% block admin_title %}Message from {{ message.name }}{% endblock %}
+
+{% block admin_breadcrumb %}
+<li class="admin-topbar__breadcrumb-sep" aria-hidden="true">›</li>
+<li class="admin-topbar__breadcrumb-item">
+  <a href="{{ url_for('admin.messages') }}" class="admin-topbar__breadcrumb-link">Messages</a>
+</li>
+<li class="admin-topbar__breadcrumb-sep" aria-hidden="true">›</li>
+<li class="admin-topbar__breadcrumb-item admin-topbar__breadcrumb-item--current" aria-current="page">
+  {{ message.name }}
+</li>
+{% endblock %}
+
+{% block admin_content %}
+<div class="admin-page-header">
+  <div class="admin-page-header__left">
+    <h1 class="admin-page-header__title">
+      <span class="admin-page-header__title-icon">📬</span>
+      Message from {{ message.name }}
+    </h1>
+    <p class="admin-page-header__subtitle">
+      Received {{ message.short_date }}
+    </p>
+  </div>
+  <div class="admin-page-header__actions">
+    <a href="{{ url_for('admin.messages') }}" class="btn btn--ghost">
+      ← Back to Messages
+    </a>
+    <a href="mailto:{{ message.email }}?subject=Re: {{ message.subject | urlencode }}"
+       class="btn btn--primary">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <polyline points="9 14 4 9 9 4"/>
+        <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
+      </svg>
+      Reply via Email
+    </a>
+  </div>
+</div>
+
+<div class="admin-message-detail-layout">
+
+  <!-- ── Message Content ─────────────────────────────────────────────────── -->
+  <div class="admin-message-detail-main">
+    <div class="admin-panel">
+      <div class="admin-panel__header">
+        <h2 class="admin-panel__title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+          {{ message.subject }}
+        </h2>
+        <span class="admin-panel__header-status {% if message.is_read %}admin-panel__header-status--read{% else %}admin-panel__header-status--unread{% endif %}">
+          {% if message.is_read %}Read{% else %}Unread{% endif %}
+        </span>
+      </div>
+      <div class="admin-panel__body">
+        <div class="admin-message-detail-body">
+          {{ message.message | nl2br if message.message else '' }}
+          <pre class="admin-message-detail-text">{{ message.message }}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Sender Info Sidebar ─────────────────────────────────────────────── -->
+  <div class="admin-message-detail-side">
+
+    <!-- Sender Info Card -->
+    <div class="admin-panel">
+      <div class="admin-panel__header">
+        <h2 class="admin-panel__title">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+          Sender Information
+        </h2>
+      </div>
+      <div class="admin-panel__body">
+        <ul class="admin-detail-list">
+          <li class="admin-detail-list__item">
+            <span class="admin-detail-list__label">Name</span>
+            <span class="admin-detail-list__value">{{ message.name }}</span>
+          </li>
+          <li class="admin-detail-list__item">
+            <span class="admin-detail-list__label">Email</span>
+            <a href="mailto:{{ message.email }}" class="admin-detail-list__value admin-detail-list__value--link">
+              {{ message.email }}
+            </a>
+          </li>
+          <li class="admin-detail-list__item">
+            <span class="admin-detail-list__label">Subject</span>
+            <span class="admin-detail-list__value">{{ message.subject }}</span>
+          </li>
+          <li class="admin-detail-list__item">
+            <span class="admin-detail-list__label">Received</span>
+            <span class="admin-detail-list__value">{{ message.short_date }}</span>
+          </li>
+          {% if message.ip_address %}
+          <li class="admin-detail-list__item">
+            <span class="admin-detail-list__label">IP Address</span>
+            <span class="admin-detail-list__value admin-detail-list__value--mono">{{ message.ip_address }}</span>
+          </li>
+          {% endif %}
+          <li class="admin-detail-list__item">
+            <span class="admin-detail-list__label">Status</span>
+            <span class="admin-detail-list__value">
+              <span class="admin-table__status {% if message.is_read %}admin-table__status--published{% else %}admin-table__status--draft{% endif %}">
+                <span class="admin-table__status-dot"></span>
+                {% if message.is_read %}Read{% else %}Unread{% endif %}
+              </span>
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Actions Card -->
+    <div class="admin-panel">
+      <div class="admin-panel__header">
+        <h2 class="admin-panel__title">Actions</h2>
+      </div>
+      <div class="admin-panel__body">
+        <div class="admin-action-stack">
+
+          <!-- Reply via email -->
+          <a href="mailto:{{ message.email }}?subject=Re: {{ message.subject | urlencode }}"
+             class="btn btn--primary btn--full">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="9 14 4 9 9 4"/>
+              <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
+            </svg>
+            Reply via Email
+          </a>
+
+          <!-- Delete -->
+          <form action="{{ url_for('admin.message_delete', msg_id=message.id) }}"
+                method="post"
+                onsubmit="return confirm('Permanently delete this message from {{ message.name }}?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit" class="btn btn--danger btn--full">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M10 11v6"/><path d="M14 11v6"/>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+              </svg>
+              Delete Message
+            </button>
+          </form>
+
+          <!-- Back to list -->
+          <a href="{{ url_for('admin.messages') }}" class="btn btn--ghost btn--full">
+            ← Back to All Messages
+          </a>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,136 @@
+<article class="post-card" aria-labelledby="post-card-title-{{ post.id }}">
+
+  {# ── Featured Image ─────────────────────────────────────────────────────── #}
+  <a href="{{ url_for('blog.detail', slug=post.slug) }}"
+     class="post-card__img-link"
+     tabindex="-1"
+     aria-hidden="true">
+    <div class="post-card__img-wrap">
+      {% if post.featured_image_url %}
+      <img
+        src="{{ post.featured_image_url }}"
+        alt="{{ post.featured_image_alt or post.title }}"
+        class="post-card__img"
+        width="400"
+        height="240"
+        loading="lazy"
+      />
+      {% else %}
+      <div class="post-card__img-placeholder">
+        <span class="post-card__placeholder-icon">✦</span>
+      </div>
+      {% endif %}
+
+      {# Reading time badge #}
+      <span class="post-card__read-badge">{{ post.reading_time }} min</span>
+
+      {# Featured badge #}
+      {% if post.is_featured %}
+      <span class="post-card__featured-badge">⭐ Featured</span>
+      {% endif %}
+    </div>
+  </a>
+
+  {# ── Card Body ───────────────────────────────────────────────────────────── #}
+  <div class="post-card__body">
+
+    {# Category #}
+    {% if post.category %}
+    <a
+      href="{{ url_for('blog.category', slug=post.category.slug) }}"
+      class="post-card__category"
+      style="color: {{ post.category.color }}; background: {{ post.category.color }}18; border-color: {{ post.category.color }}30"
+    >
+      {{ post.category.name }}
+    </a>
+    {% else %}
+    <span class="post-card__category post-card__category--uncategorized">Uncategorized</span>
+    {% endif %}
+
+    {# Title #}
+    <h3 class="post-card__title" id="post-card-title-{{ post.id }}">
+      <a href="{{ url_for('blog.detail', slug=post.slug) }}" class="post-card__title-link">
+        {{ post.title }}
+      </a>
+    </h3>
+
+    {# Excerpt #}
+    {% if post.excerpt %}
+    <p class="post-card__excerpt">
+      {{ post.excerpt | strip_html | truncate_words(20) }}
+    </p>
+    {% else %}
+    <p class="post-card__excerpt">
+      {{ post.content | strip_html | truncate_words(20) }}
+    </p>
+    {% endif %}
+
+    {# ── Meta Row ──────────────────────────────────────────────────────────── #}
+    <div class="post-card__meta">
+
+      {# Author avatar + name #}
+      <div class="post-card__author">
+        <img
+          src="{{ post.author.get_avatar_url() }}"
+          alt="{{ post.author.username }}"
+          class="post-card__author-avatar"
+          width="28"
+          height="28"
+          loading="lazy"
+        />
+        <span class="post-card__author-name">{{ post.author.username }}</span>
+      </div>
+
+      {# Date #}
+      <time
+        class="post-card__date"
+        datetime="{{ post.iso_date }}"
+        title="{{ post.published_at | human_datetime if post.published_at else post.created_at | human_datetime }}"
+      >
+        {{ post.short_date }}
+      </time>
+
+    </div>
+
+  </div>
+
+  {# ── Card Footer ─────────────────────────────────────────────────────────── #}
+  <div class="post-card__footer">
+
+    <div class="post-card__stats">
+      {# Views #}
+      <span class="post-card__stat" title="{{ post.views }} views">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+        <span>{{ post.views | format_number }}</span>
+      </span>
+
+      {# Comments #}
+      <span class="post-card__stat" title="{{ post.approved_comment_count }} comments">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span>{{ post.approved_comment_count }}</span>
+      </span>
+    </div>
+
+    <a
+      href="{{ url_for('blog.detail', slug=post.slug) }}"
+      class="post-card__read-link"
+      aria-label="Read {{ post.title }}"
+    >
+      Read More
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="5" y1="12" x2="19" y2="12"/>
+        <polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </a>
+
+  </div>
+
+</article>

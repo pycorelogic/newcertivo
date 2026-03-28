@@ -1,0 +1,315 @@
+// ============================================================================
+// FOOTER
+// ============================================================================
+
+.footer {
+  background-color: $gray-900;
+  color: $gray-400;
+  padding: 3rem 0 1.5rem;
+  margin-top: auto;
+  border-top: 1px solid $gray-800;
+
+  &__container {
+    @include container;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: $spacing-8;
+    margin-bottom: $spacing-8;
+
+    @include md {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @include lg {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  &__section,
+  &__col {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__brand {
+    font-weight: 800;
+    letter-spacing: -1px;
+    font-size: $font-size-lg;
+    display: block;
+    margin-bottom: $spacing-4;
+    color: $white;
+  }
+
+  &__dev-info {
+    margin-bottom: $spacing-4;
+  }
+
+  &__dev-link {
+    color: $white;
+    text-decoration: none;
+    font-size: $font-size-base;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $primary-light;
+    }
+  }
+
+  &__dev-tagline {
+    font-size: $font-size-xs;
+    color: $primary-light;
+    margin: $spacing-1 0;
+    font-weight: $font-weight-medium;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  &__dev-text {
+    font-size: $font-size-sm;
+    color: $gray-500;
+    line-height: $line-height-relaxed;
+  }
+
+  &__dev-footer-link {
+    color: $white;
+    font-weight: $font-weight-semibold;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: all $transition-fast;
+
+    &:hover {
+      color: $primary-light;
+      border-bottom-color: $primary-light;
+    }
+  }
+
+  &__title,
+  &__col-title {
+    color: $white;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    margin-bottom: $spacing-4;
+    position: relative;
+    padding-bottom: $spacing-2;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 30px;
+      height: 2px;
+      background-color: $primary;
+    }
+  }
+
+  &__text {
+    font-size: $font-size-sm;
+    line-height: $line-height-relaxed;
+    color: $gray-400;
+    margin-bottom: $spacing-4;
+  }
+
+  &__links {
+    @include reset-list;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+  }
+
+  &__link {
+    color: $gray-400;
+    font-size: $font-size-sm;
+    text-decoration: none;
+    padding: $spacing-2 0;
+    transition: all $transition-fast;
+    display: flex;
+    align-items: center;
+    gap: $spacing-2;
+
+    i {
+      font-size: $font-size-xs;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition: all $transition-fast;
+    }
+
+    &:hover {
+      color: $primary-light;
+      padding-left: $spacing-2;
+
+      i {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+  }
+
+  &__social {
+    display: flex;
+    gap: $spacing-3;
+    margin-top: $spacing-4;
+  }
+
+  &__social-link {
+    width: 40px;
+    height: 40px;
+    @include flex-center;
+    border-radius: 50%;
+    background-color: $gray-800;
+    color: $gray-400;
+    font-size: $font-size-lg;
+    transition: all $transition-fast;
+    text-decoration: none;
+
+    &:hover {
+      background-color: $primary;
+      color: $white;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 12px rgba($primary, 0.3);
+    }
+
+    &--twitter:hover {
+      background-color: #1da1f2;
+    }
+
+    &--facebook:hover {
+      background-color: #1877f2;
+    }
+
+    &--instagram:hover {
+      background-color: #e4405f;
+    }
+
+    &--linkedin:hover {
+      background-color: #0077b5;
+    }
+
+    &--github:hover {
+      background-color: #333;
+    }
+  }
+
+  &__bottom {
+    border-top: 1px solid $gray-800;
+    padding-top: $spacing-6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-4;
+
+    @include md {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  &__copyright {
+    font-size: $font-size-sm;
+    color: $gray-500;
+    text-align: center;
+
+    @include md {
+      text-align: left;
+    }
+  }
+
+  &__bottom-links {
+    @include reset-list;
+    display: flex;
+    gap: $spacing-4;
+    font-size: $font-size-sm;
+
+    a {
+      color: $gray-500;
+      text-decoration: none;
+      transition: color $transition-fast;
+
+      &:hover {
+        color: $primary-light;
+      }
+    }
+  }
+
+  // Newsletter Signup (if used)
+  &__newsletter {
+    margin-top: $spacing-4;
+
+    .newsletter-form {
+      display: flex;
+      gap: $spacing-2;
+      margin-top: $spacing-3;
+
+      input {
+        flex: 1;
+        padding: $spacing-3 $spacing-4;
+        background-color: $gray-800;
+        border: 1px solid $gray-700;
+        border-radius: $border-radius;
+        color: $white;
+        font-size: $font-size-sm;
+
+        &:focus {
+          outline: none;
+          border-color: $primary;
+        }
+
+        &::placeholder {
+          color: $gray-500;
+        }
+      }
+
+      button {
+        padding: $spacing-3 $spacing-5;
+        background-color: $primary;
+        color: $white;
+        border: none;
+        border-radius: $border-radius;
+        font-weight: $font-weight-medium;
+        cursor: pointer;
+        transition: background-color $transition-fast;
+        white-space: nowrap;
+
+        &:hover {
+          background-color: $primary-dark;
+        }
+      }
+    }
+  }
+}
+
+// Back to Top Button
+.back-to-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 50px;
+  height: 50px;
+  @include flex-center;
+  background-color: $primary;
+  color: $white;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: $font-size-xl;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(20px);
+  transition: all $transition-base;
+  z-index: $z-index-fixed;
+  box-shadow: $shadow-lg;
+
+  &:hover {
+    background-color: $primary-dark;
+    transform: translateY(0) scale(1.1);
+  }
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+}

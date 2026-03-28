@@ -1,0 +1,221 @@
+// ============================================================================
+// FORMS & CONTACT PAGE
+// ============================================================================
+
+.form-group {
+  margin-bottom: $spacing-5;
+}
+
+.form-label {
+  display: block;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $gray-700;
+  margin-bottom: $spacing-2;
+
+  [data-theme="dark"] & {
+    color: $vscode-text;
+  }
+}
+
+.form-control {
+  width: 100%;
+  padding: $spacing-3 $spacing-4;
+  font-size: $font-size-base;
+  font-family: $font-primary;
+  color: $black;
+  background-color: $white;
+  border: 1px solid $gray-300;
+  border-radius: $border-radius;
+  transition: all $transition-fast;
+
+  [data-theme="dark"] & {
+    background-color: #3c3c3c;
+    border-color: #3c3c3c;
+    color: $white;
+  }
+
+  &::placeholder {
+    color: $gray-400;
+    [data-theme="dark"] & {
+      color: #717171;
+    }
+  }
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+
+    [data-theme="dark"] & {
+      border-color: $vscode-accent;
+      box-shadow: 0 0 0 3px rgba($vscode-accent, 0.2);
+    }
+  }
+
+  &:disabled {
+    background-color: $gray-100;
+    cursor: not-allowed;
+  }
+}
+
+textarea.form-control {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-4;
+
+  @include md {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+// ─── Contact Page ───────────────────────────────────────────────────────────
+
+.contact-section {
+  padding: $spacing-12 0;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-8;
+
+  @include lg {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-6;
+
+  &__item {
+    display: flex;
+    gap: $spacing-4;
+    padding: $spacing-4 0;
+    border-bottom: 1px solid $gray-100;
+
+    [data-theme="dark"] & {
+      border-bottom-color: $vscode-border;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    @include flex-center;
+    background-color: rgba($primary, 0.1);
+    color: $primary;
+    border-radius: $border-radius-lg;
+    font-size: 1.25rem;
+
+    [data-theme="dark"] & {
+      background-color: rgba($vscode-accent, 0.1);
+      color: $vscode-accent;
+    }
+  }
+
+  &__content {
+    h4 {
+      font-size: $font-size-xs;
+      font-weight: $font-weight-bold;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: $gray-500;
+      margin-bottom: $spacing-1;
+    }
+    p {
+      margin: 0;
+      font-weight: $font-weight-medium;
+
+      [data-theme="dark"] & {
+        color: $white;
+      }
+    }
+  }
+}
+
+.social-links {
+  display: flex;
+  gap: $spacing-3;
+}
+
+.social-link {
+  width: 40px;
+  height: 40px;
+  @include flex-center;
+  border-radius: 50%;
+  background-color: $gray-100;
+  color: $gray-700;
+  transition: all $transition-fast;
+
+  [data-theme="dark"] & {
+    background-color: $gray-800;
+    color: $gray-400;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    background-color: $primary;
+    color: $white;
+
+    [data-theme="dark"] & {
+      background-color: $vscode-accent;
+    }
+  }
+}
+
+.required {
+  color: $danger;
+  margin-left: 2px;
+}
+
+.form-help {
+  display: block;
+  font-size: $font-size-xs;
+  color: $gray-500;
+  margin-top: $spacing-1;
+}
+
+// ─── Post Detail Badges ─────────────────────────────────────────────────────
+
+.post-detail__top-badges {
+  display: flex;
+  gap: $spacing-2;
+  margin-bottom: $spacing-4;
+}
+
+.post-detail__category-badge {
+  padding: 4px 12px;
+  border-radius: $border-radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: all $transition-fast;
+
+  &:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+  }
+}
+
+.post-detail__featured-badge {
+  background-color: $accent;
+  color: $white;
+  padding: 4px 12px;
+  border-radius: $border-radius-full;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+}

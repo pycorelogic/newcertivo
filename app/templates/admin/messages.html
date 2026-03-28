@@ -1,0 +1,175 @@
+{% extends 'admin/base.html' %}
+
+{% block admin_title %}Contact Messages{% endblock %}
+
+{% block admin_breadcrumb %}
+<li class="admin-topbar__breadcrumb-sep" aria-hidden="true">›</li>
+<li class="admin-topbar__breadcrumb-item admin-topbar__breadcrumb-item--current" aria-current="page">
+  Messages
+</li>
+{% endblock %}
+
+{% block admin_content %}
+<div class="admin-page-header">
+  <div class="admin-page-header__left">
+    <h1 class="admin-page-header__title">
+      <span class="admin-page-header__title-icon">📬</span>
+      Contact Messages
+      {% if unread_count > 0 %}
+      <span class="admin-page-header__title-badge admin-page-header__title-badge--red">
+        {{ unread_count }} unread
+      </span>
+      {% endif %}
+    </h1>
+    <p class="admin-page-header__subtitle">
+      View and manage messages submitted through the contact form.
+    </p>
+  </div>
+</div>
+
+{# ── STATUS FILTER TABS ───────────────────────────────────────────────────── #}
+<div class="admin-tab-bar">
+  <nav class="admin-tabs" aria-label="Message filter">
+    <a href="{{ url_for('admin.messages', status='all') }}"
+       class="admin-tab {% if status_filter == 'all' %}admin-tab--active{% endif %}">
+      All
+    </a>
+    <a href="{{ url_for('admin.messages', status='unread') }}"
+       class="admin-tab {% if status_filter == 'unread' %}admin-tab--active{% endif %}">
+      Unread
+      {% if unread_count > 0 %}
+      <span class="admin-tab__badge admin-tab__badge--red">{{ unread_count }}</span>
+      {% endif %}
+    </a>
+    <a href="{{ url_for('admin.messages', status='read') }}"
+       class="admin-tab {% if status_filter == 'read' %}admin-tab--active{% endif %}">
+      Read
+    </a>
+  </nav>
+  {% if pagination %}
+  <p class="admin-tab-bar__count">
+    <strong>{{ pagination.total }}</strong> message{{ 's' if pagination.total != 1 else '' }}
+  </p>
+  {% endif %}
+</div>
+
+{# ── MESSAGES LIST ────────────────────────────────────────────────────────── #}
+<div class="admin-panel">
+  <div class="admin-panel__body admin-panel__body--no-pad">
+
+    {% if messages %}
+    <div class="admin-messages-list">
+      {% for msg in messages %}
+      <div class="admin-message-card {% if not msg.is_read %}admin-message-card--unread{% endif %}"
+           id="message-{{ msg.id }}">
+
+        <div class="admin-message-card__avatar">
+          <div class="admin-message-card__avatar-initials"
+               aria-hidden="true">
+            {{ msg.name[:1] | upper }}{{ msg.name.split()[-1][:1] | upper if msg.name.split() | length > 1 else '' }}
+          </div>
+          {% if not msg.is_read %}
+          <span class="admin-message-card__unread-dot" title="Unread"></span>
+          {% endif %}
+        </div>
+
+        <a href="{{ url_for('admin.message_detail', msg_id=msg.id) }}"
+           class="admin-message-card__link">
+          <div class="admin-message-card__header">
+            <div class="admin-message-card__author-info">
+              <span class="admin-message-card__name">{{ msg.name }}</span>
+              <span class="admin-message-card__email">{{ msg.email }}</span>
+            </div>
+            <div class="admin-message-card__meta">
+              <time class="admin-message-card__date"
+                    datetime="{{ msg.created_at.strftime('%Y-%m-%dT%H:%M:%S') }}"
+                    title="{{ msg.short_date }}">
+                {{ msg.created_at | time_ago }}
+              </time>
+              {% if not msg.is_read %}
+              <span class="admin-message-card__status">Unread</span>
+              {% endif %}
+            </div>
+          </div>
+          <div class="admin-message-card__subject">{{ msg.subject }}</div>
+          <p class="admin-message-card__preview">{{ msg.preview }}</p>
+        </a>
+
+        <div class="admin-message-card__actions">
+          <a href="{{ url_for('admin.message_detail', msg_id=msg.id) }}"
+             class="admin-message-card__action-btn admin-message-card__action-btn--view"
+             title="View full message">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </a>
+          <a href="mailto:{{ msg.email }}?subject=Re: {{ msg.subject | urlencode }}"
+             class="admin-message-card__action-btn admin-message-card__action-btn--reply"
+             title="Reply via email">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="9 14 4 9 9 4"/>
+              <path d="M20 20v-7a4 4 0 0 0-4-4H4"/>
+            </svg>
+          </a>
+          <form action="{{ url_for('admin.message_delete', msg_id=msg.id) }}"
+                method="post" class="admin-message-card__action-form"
+                onsubmit="return confirm('Delete this message permanently?')">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button type="submit"
+                    class="admin-message-card__action-btn admin-message-card__action-btn--delete"
+                    title="Delete message">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="3 6 5 6 21 6"/>
+                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+              </svg>
+            </button>
+          </form>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+
+    {% if pagination and pagination.pages > 1 %}
+    <div class="admin-pagination">
+      {% if pagination.has_prev %}
+      <a href="{{ url_for('admin.messages', page=pagination.prev_num, status=status_filter) }}"
+         class="admin-pagination__btn" rel="prev">← Previous</a>
+      {% endif %}
+      <span class="admin-pagination__info">Page {{ pagination.page }} of {{ pagination.pages }}</span>
+      {% if pagination.has_next %}
+      <a href="{{ url_for('admin.messages', page=pagination.next_num, status=status_filter) }}"
+         class="admin-pagination__btn" rel="next">Next →</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="admin-empty-state admin-empty-state--large">
+      <span class="admin-empty-state__icon">
+        {% if status_filter == 'unread' %}📭{% else %}📬{% endif %}
+      </span>
+      <h3 class="admin-empty-state__title">
+        {% if status_filter == 'unread' %}No unread messages
+        {% elif status_filter == 'read' %}No read messages
+        {% else %}No messages yet{% endif %}
+      </h3>
+      <p class="admin-empty-state__text">
+        {% if status_filter == 'unread' %}
+          Your inbox is clear! All messages have been read.
+        {% else %}
+          Messages submitted through the contact form will appear here.
+        {% endif %}
+      </p>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,440 @@
+{% extends 'admin/base.html' %}
+
+{% block admin_title %}Categories{% endblock %}
+
+{% block admin_breadcrumb %}
+<li class="admin-topbar__breadcrumb-sep" aria-hidden="true">›</li>
+<li class="admin-topbar__breadcrumb-item admin-topbar__breadcrumb-item--current" aria-current="page">
+  Categories
+</li>
+{% endblock %}
+
+{% block admin_content %}
+<div class="admin-page-header">
+  <div class="admin-page-header__left">
+    <h1 class="admin-page-header__title">
+      <span class="admin-page-header__title-icon">🗂️</span>
+      Categories
+    </h1>
+    <p class="admin-page-header__subtitle">
+      Organise your blog posts into categories to help readers find content easily.
+    </p>
+  </div>
+  <div class="admin-page-header__actions">
+    <button class="btn btn--primary" id="add-category-btn"
+            aria-haspopup="dialog" aria-controls="add-category-modal">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="12" y1="5" x2="12" y2="19"/>
+        <line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      New Category
+    </button>
+  </div>
+</div>
+
+{# ── CATEGORIES GRID ──────────────────────────────────────────────────────── #}
+{% if categories %}
+<div class="admin-categories-grid">
+  {% for cat in categories %}
+  <div class="admin-category-card" id="cat-card-{{ cat.id }}"
+       style="--cat-color: {{ cat.color }}">
+
+    <div class="admin-category-card__color-bar" style="background: {{ cat.color }}"></div>
+
+    <div class="admin-category-card__body">
+      <div class="admin-category-card__icon-wrap" style="background: {{ cat.color }}18">
+        {% if cat.icon %}
+        <i class="{{ cat.icon }}" style="color: {{ cat.color }}" aria-hidden="true"></i>
+        {% else %}
+        <span class="admin-category-card__default-icon" style="color: {{ cat.color }}">🗂️</span>
+        {% endif %}
+      </div>
+
+      <div class="admin-category-card__info">
+        <h3 class="admin-category-card__name">{{ cat.name }}</h3>
+        <p class="admin-category-card__slug">/blog/category/{{ cat.slug }}</p>
+        {% if cat.description %}
+        <p class="admin-category-card__desc">{{ cat.description | truncate(80, True, '…') }}</p>
+        {% endif %}
+      </div>
+
+      <div class="admin-category-card__stats">
+        <div class="admin-category-card__stat">
+          <span class="admin-category-card__stat-value"
+                style="color: {{ cat.color }}">{{ cat.published_post_count }}</span>
+          <span class="admin-category-card__stat-label">Posts</span>
+        </div>
+        <div class="admin-category-card__stat">
+          <span class="admin-category-card__color-badge" 
+                style="background-color: {{ cat.color }}; color: {{ '#000' if cat.color|hex_to_rgb|is_light else '#fff' }}">
+            {{ cat.color }}
+          </span>
+          <span class="admin-category-card__stat-label">Brand Colour</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-category-card__actions">
+      <a href="{{ url_for('blog.category', slug=cat.slug) }}"
+         class="admin-category-card__action-btn admin-category-card__action-btn--view"
+         target="_blank" rel="noopener" title="View category on site">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+          <polyline points="15 3 21 3 21 9"/>
+          <line x1="10" y1="14" x2="21" y2="3"/>
+        </svg>
+        View
+      </a>
+
+      <button class="admin-category-card__action-btn admin-category-card__action-btn--edit"
+              title="Edit category"
+              onclick="openEditModal(
+                {{ cat.id }},
+                {{ cat.name | tojson }},
+                {{ (cat.description or '') | tojson }},
+                {{ cat.color | tojson }},
+                {{ (cat.icon or '') | tojson }}
+              )">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        Edit
+      </button>
+
+      <form action="{{ url_for('admin.category_delete', cat_id=cat.id) }}"
+            method="post" class="admin-category-card__action-form"
+            onsubmit="return confirmDeleteCategory('{{ cat.name | replace("'", "\\'") }}', {{ cat.published_post_count }})">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <button type="submit"
+                class="admin-category-card__action-btn admin-category-card__action-btn--delete"
+                title="Delete category">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <polyline points="3 6 5 6 21 6"/>
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+          </svg>
+          Delete
+        </button>
+      </form>
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+{% else %}
+
+<div class="admin-empty-state admin-empty-state--large">
+  <span class="admin-empty-state__icon">🗂️</span>
+  <h3 class="admin-empty-state__title">No categories yet</h3>
+  <p class="admin-empty-state__text">
+    Create your first category to start organising your blog posts.
+  </p>
+  <button class="btn btn--primary" id="add-category-btn-empty"
+          onclick="document.getElementById('add-category-modal').removeAttribute('hidden'); document.getElementById('add-category-modal').setAttribute('aria-hidden','false');">
+    + Create First Category
+  </button>
+</div>
+
+{% endif %}
+
+
+{# ══════════════════════════════════════════════════════════════════════════ #}
+{# ADD CATEGORY MODAL                                                        #}
+{# ══════════════════════════════════════════════════════════════════════════ #}
+<div class="admin-modal" id="add-category-modal" role="dialog" aria-modal="true"
+     aria-labelledby="add-category-modal-title" aria-hidden="true" hidden>
+  <div class="admin-modal__backdrop" id="add-category-backdrop"></div>
+  <div class="admin-modal__box">
+    <div class="admin-modal__header">
+      <h2 class="admin-modal__title" id="add-category-modal-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+        </svg>
+        New Category
+      </h2>
+      <button class="admin-modal__close" id="add-category-close"
+              aria-label="Close modal">&times;</button>
+    </div>
+
+    <form action="{{ url_for('admin.category_create') }}" method="post"
+          class="admin-modal__form" id="add-category-form" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <div class="admin-modal__body">
+
+        <div class="admin-form-field">
+          <label for="new-cat-name" class="admin-form-label">
+            Category Name <span class="admin-form-required">*</span>
+          </label>
+          <input type="text" id="new-cat-name" name="name"
+                 class="admin-form-input" required maxlength="80"
+                 placeholder="e.g. Technology, Lifestyle, Travel…"
+                 aria-required="true" />
+        </div>
+
+        <div class="admin-form-field">
+          <label for="new-cat-description" class="admin-form-label">
+            Description <span class="admin-form-label-hint">(optional)</span>
+          </label>
+          <textarea id="new-cat-description" name="description"
+                    class="admin-form-textarea admin-form-textarea--sm"
+                    rows="3" maxlength="500"
+                    placeholder="A short description of this category…"></textarea>
+        </div>
+
+        <div class="admin-form-grid admin-form-grid--2">
+          <div class="admin-form-field">
+            <label for="new-cat-color" class="admin-form-label">
+              Brand Colour
+            </label>
+            <div class="admin-color-picker-wrap">
+              <input type="color" id="new-cat-color" name="color"
+                     class="admin-color-picker" value="#FF7043"
+                     aria-label="Pick a colour for this category" />
+              <input type="text" id="new-cat-color-hex" class="admin-form-input admin-form-input--sm admin-color-hex-input"
+                     value="#FF7043" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$"
+                     placeholder="#FF7043" aria-label="Hex colour code" />
+            </div>
+            <div class="admin-color-preview" id="new-cat-color-preview"
+                 style="background: #FF7043" aria-hidden="true">
+              <span class="admin-color-preview__text">Sample Badge</span>
+            </div>
+          </div>
+
+          <div class="admin-form-field">
+            <label for="new-cat-icon" class="admin-form-label">
+              Icon Class <span class="admin-form-label-hint">(optional)</span>
+            </label>
+            <input type="text" id="new-cat-icon" name="icon"
+                   class="admin-form-input admin-form-input--sm"
+                   maxlength="50"
+                   placeholder="fas fa-laptop" />
+            <span class="admin-form-help-text">FontAwesome class, e.g. <code>fas fa-laptop</code></span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="admin-modal__footer">
+        <button type="button" class="btn btn--ghost" id="add-category-cancel">Cancel</button>
+        <button type="submit" class="btn btn--primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Create Category
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+{# ══════════════════════════════════════════════════════════════════════════ #}
+{# EDIT CATEGORY MODAL                                                       #}
+{# ══════════════════════════════════════════════════════════════════════════ #}
+<div class="admin-modal" id="edit-category-modal" role="dialog" aria-modal="true"
+     aria-labelledby="edit-category-modal-title" aria-hidden="true" hidden>
+  <div class="admin-modal__backdrop" id="edit-category-backdrop"></div>
+  <div class="admin-modal__box">
+    <div class="admin-modal__header">
+      <h2 class="admin-modal__title" id="edit-category-modal-title">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        Edit Category
+      </h2>
+      <button class="admin-modal__close" id="edit-category-close"
+              aria-label="Close modal">&times;</button>
+    </div>
+
+    <form id="edit-category-form" method="post" class="admin-modal__form" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+      <div class="admin-modal__body">
+
+        <div class="admin-form-field">
+          <label for="edit-cat-name" class="admin-form-label">
+            Category Name <span class="admin-form-required">*</span>
+          </label>
+          <input type="text" id="edit-cat-name" name="name"
+                 class="admin-form-input" required maxlength="80"
+                 placeholder="Category name" aria-required="true" />
+        </div>
+
+        <div class="admin-form-field">
+          <label for="edit-cat-description" class="admin-form-label">
+            Description <span class="admin-form-label-hint">(optional)</span>
+          </label>
+          <textarea id="edit-cat-description" name="description"
+                    class="admin-form-textarea admin-form-textarea--sm"
+                    rows="3" maxlength="500"
+                    placeholder="A short description of this category…"></textarea>
+        </div>
+
+        <div class="admin-form-grid admin-form-grid--2">
+          <div class="admin-form-field">
+            <label for="edit-cat-color" class="admin-form-label">Brand Colour</label>
+            <div class="admin-color-picker-wrap">
+              <input type="color" id="edit-cat-color" name="color"
+                     class="admin-color-picker" value="#FF7043"
+                     aria-label="Pick a colour" />
+              <input type="text" id="edit-cat-color-hex"
+                     class="admin-form-input admin-form-input--sm admin-color-hex-input"
+                     value="#FF7043" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$"
+                     placeholder="#FF7043" aria-label="Hex colour code" />
+            </div>
+            <div class="admin-color-preview" id="edit-cat-color-preview"
+                 style="background: #FF7043" aria-hidden="true">
+              <span class="admin-color-preview__text">Sample Badge</span>
+            </div>
+          </div>
+
+          <div class="admin-form-field">
+            <label for="edit-cat-icon" class="admin-form-label">
+              Icon Class <span class="admin-form-label-hint">(optional)</span>
+            </label>
+            <input type="text" id="edit-cat-icon" name="icon"
+                   class="admin-form-input admin-form-input--sm"
+                   maxlength="50" placeholder="fas fa-laptop" />
+            <span class="admin-form-help-text">FontAwesome class</span>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="admin-modal__footer">
+        <button type="button" class="btn btn--ghost" id="edit-category-cancel">Cancel</button>
+        <button type="submit" class="btn btn--primary">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Save Changes
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block admin_extra_scripts %}
+<script>
+(function () {
+  // ── Utility: open / close modals ──────────────────────────────────────────
+  function openModal(modal) {
+    modal.hidden = false;
+    modal.setAttribute('aria-hidden', 'false');
+    // Focus first focusable element
+    const focusable = modal.querySelector('input, textarea, button, select, a');
+    if (focusable) setTimeout(() => focusable.focus(), 50);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(modal) {
+    modal.hidden = true;
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  // ── Add Category Modal ────────────────────────────────────────────────────
+  const addModal   = document.getElementById('add-category-modal');
+  const addBtn     = document.getElementById('add-category-btn');
+  const addBtnEmpty= document.getElementById('add-category-btn-empty');
+  const addClose   = document.getElementById('add-category-close');
+  const addCancel  = document.getElementById('add-category-cancel');
+  const addBackdrop= document.getElementById('add-category-backdrop');
+
+  if (addBtn)      addBtn.addEventListener('click', () => openModal(addModal));
+  if (addBtnEmpty) addBtnEmpty.addEventListener('click', () => openModal(addModal));
+  if (addClose)    addClose.addEventListener('click', () => closeModal(addModal));
+  if (addCancel)   addCancel.addEventListener('click', () => closeModal(addModal));
+  if (addBackdrop) addBackdrop.addEventListener('click', () => closeModal(addModal));
+
+  // ── Edit Category Modal ───────────────────────────────────────────────────
+  const editModal   = document.getElementById('edit-category-modal');
+  const editClose   = document.getElementById('edit-category-close');
+  const editCancel  = document.getElementById('edit-category-cancel');
+  const editBackdrop= document.getElementById('edit-category-backdrop');
+  const editForm    = document.getElementById('edit-category-form');
+
+  if (editClose)    editClose.addEventListener('click', () => closeModal(editModal));
+  if (editCancel)   editCancel.addEventListener('click', () => closeModal(editModal));
+  if (editBackdrop) editBackdrop.addEventListener('click', () => closeModal(editModal));
+
+  window.openEditModal = function (id, name, description, color, icon) {
+    // Set form action
+    editForm.action = '/admin/categories/' + id + '/edit';
+
+    // Populate fields
+    document.getElementById('edit-cat-name').value        = name;
+    document.getElementById('edit-cat-description').value = description;
+    document.getElementById('edit-cat-color').value       = color;
+    document.getElementById('edit-cat-color-hex').value   = color;
+    document.getElementById('edit-cat-icon').value        = icon;
+
+    // Update colour preview
+    const editPreview = document.getElementById('edit-cat-color-preview');
+    if (editPreview) editPreview.style.background = color;
+
+    openModal(editModal);
+  };
+
+  // ── Escape key closes any open modal ─────────────────────────────────────
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      [addModal, editModal].forEach(m => {
+        if (m && !m.hidden) closeModal(m);
+      });
+    }
+  });
+
+  // ── Colour picker ↔ hex input sync (both modals) ──────────────────────────
+  function syncColorInputs(pickerId, hexId, previewId) {
+    const picker  = document.getElementById(pickerId);
+    const hexInput= document.getElementById(hexId);
+    const preview = document.getElementById(previewId);
+    if (!picker || !hexInput) return;
+
+    picker.addEventListener('input', function () {
+      hexInput.value = this.value;
+      if (preview) preview.style.background = this.value;
+    });
+
+    hexInput.addEventListener('input', function () {
+      const val = this.value.trim();
+      if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+        picker.value = val;
+        if (preview) preview.style.background = val;
+      }
+    });
+  }
+
+  syncColorInputs('new-cat-color', 'new-cat-color-hex', 'new-cat-color-preview');
+  syncColorInputs('edit-cat-color', 'edit-cat-color-hex', 'edit-cat-color-preview');
+
+  // ── Delete confirmation ───────────────────────────────────────────────────
+  window.confirmDeleteCategory = function (name, postCount) {
+    let msg = `Delete the category "${name}"?`;
+    if (postCount > 0) {
+      msg += `\n\nThis category has ${postCount} published post${postCount !== 1 ? 's' : ''}. They will be moved to "Uncategorized".`;
+    }
+    msg += '\n\nThis action cannot be undone.';
+    return confirm(msg);
+  };
+}());
+</script>
+{% endblock %}
