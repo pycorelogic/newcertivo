@@ -1,0 +1,11 @@
+[phases.setup]
+nixPkgs = ["python312"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[phases.build]
+cmds = ["python compile_scss.py"]
+
+[start]
+cmd = "gunicorn --bind 0.0.0.0:$PORT --workers 4 --threads 2 app:app"
